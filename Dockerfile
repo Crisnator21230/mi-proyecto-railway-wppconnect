@@ -25,8 +25,9 @@ RUN npm install -g npm@11.6.2 \
 # Copiar el resto del proyecto
 COPY . .
 
-# Compilar el código TypeScript
-RUN npm run build
+# Compilar el código TypeScript (instala TypeScript temporalmente)
+RUN npm install typescript --no-save && npm run build
+
 
 # Exponer el puerto que usa tu app (por ejemplo, 21465)
 EXPOSE 21465
