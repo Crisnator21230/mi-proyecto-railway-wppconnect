@@ -1,17 +1,17 @@
 import { ServerOptions } from './types/ServerOptions';
 
 export default {
-  secretKey: 'THISISMYSECURETOKEN',
-  host: 'http://localhost',
-  port: '21465',
+  secretKey: process.env.SECRET_KEY,
+  host: process.env.HOST,
+  port: process.env.PORT,
   deviceName: 'WppConnect',
   poweredBy: 'WPPConnect-Server',
-  startAllSession: true,
+  startAllSession: process.env.START_ALL_SESSION,
   tokenStoreType: 'file',
   maxListeners: 15,
   customUserDataDir: './userDataDir/',
   webhook: {
-    url: null,
+    url: process.env.WEBHOOK_URL,
     autoDownload: true,
     uploadS3: false,
     readMessage: true,

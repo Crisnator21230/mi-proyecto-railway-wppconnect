@@ -1,9 +1,35 @@
+# Archivos y carpetas de control de versiones
 .git
 .github
+.gitignore
+
+# Archivos locales o ocultos
 .hust
+.env
+*.env
+
+# Paquetes y logs
 *.tgz
-dist
-log
-node_modules
 npm-debug.log
+yarn-error.log
+log
+
+# Compilados o generados
+dist
+build
+coverage
+
+# Dependencias
+node_modules
+
+# Tokens y archivos sensibles
 tokens
+*.pem
+*.key
+*.crt
+
+# Docker y CI/CD
+Dockerfile
+docker-compose.yml
+userDataDir
+

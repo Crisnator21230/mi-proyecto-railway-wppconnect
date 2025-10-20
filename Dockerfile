@@ -1,34 +1,30 @@
-FROM node:22.20.0-alpine AS base
-WORKDIR /usr/src/wpp-server
-ENV NODE_ENV=production PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-COPY package.json ./
-RUN apk update && \
-    apk add --no-cache \
-    vips-dev \
-    fftw-dev \
-    gcc \
-    g++ \
-    make \
-    libc6-compat \
-    && rm -rf /var/cache/apk/*
-RUN yarn install --production --pure-lockfile && \
-    yarn add sharp --ignore-engines && \
-    yarn cache clean
+# --- Etapa base ---
+FROM node:20-bullseye-slim AS base
 
+WORKDIR /usr/src/wpp-server
+ENV NODE_ENV=production
+
+# Instalar dependencias del sistema necesarias para Sharp y Puppeteer
+RUN apt-get update && apt-get install -y \
+  build-essential \
+  libvips-dev \
+  chromium \
+  ffmpeg \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY package.json yarn.lock* ./
+
+RUN yarn install --production --frozen-lockfile && yarn cache clean
+
+# --- Etapa de build ---
 FROM base AS build
 WORKDIR /usr/src/wpp-server
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-COPY package.json  ./
-RUN yarn install --production=false --pure-lockfile
-RUN yarn cache clean
 COPY . .
 RUN yarn build
 
+# --- Etapa final ---
 FROM base
-WORKDIR /usr/src/wpp-server/
-RUN apk add --no-cache chromium
-RUN yarn cache clean
-COPY . .
-COPY --from=build /usr/src/wpp-server/ /usr/src/wpp-server/
+WORKDIR /usr/src/wpp-server
+COPY --from=build /usr/src/wpp-server /usr/src/wpp-server
 EXPOSE 21465
-ENTRYPOINT ["node", "dist/server.js"]
+CMD ["node", "dist/server.js"]
