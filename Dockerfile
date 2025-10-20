@@ -1,31 +1,31 @@
 # --- Etapa base ---
-FROM node:22.20.0-slim
+FROM node:22.20.0
 
-# Instalar dependencias del sistema necesarias para sharp, puppeteer y chromium
-RUN apt-get update && apt-get install -y \
-  build-essential \
-  libvips-dev \
-  chromium \
-  ffmpeg \
-  && rm -rf /var/lib/apt/lists/*
-
-# Crear carpeta de trabajo
+# Crear directorio de trabajo
 WORKDIR /usr/src/wpp-server
 
-# Copiar archivos del proyecto
+# Instalar dependencias del sistema necesarias para wppconnect
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libvips-dev \
+    chromium \
+    ffmpeg \
+ && rm -rf /var/lib/apt/lists/*
+
+# Copiar archivos de dependencias
 COPY package*.json ./
 
-# Actualizar npm y luego instalar dependencias sin scripts ni conflictos
-RUN npm install -g npm@11.6.2 && npm install --omit=dev --legacy-peer-deps --ignore-scripts
+# Instalar npm actualizado y dependencias sin las de desarrollo
+RUN npm install -g npm@11.6.2 && npm install --omit=dev --legacy-peer-deps
 
-# Copiar el resto del código del proyecto
+# Copiar el resto del proyecto
 COPY . .
 
-# Compilar si usas TypeScript
-RUN npm run build || echo "No build script"
+# Compilar el código TypeScript
+RUN npm run build
 
-# Exponer el puerto
+# Exponer el puerto que usa tu app (por ejemplo, 21465)
 EXPOSE 21465
 
-# Comando de inicio
-CMD ["npm", "start"]
+# Comando de inicio (usando cross-env para compatibilidad)
+CMD ["npx", "cross-env", "NODE_ENV=production", "node", "./dist/server.js"]
