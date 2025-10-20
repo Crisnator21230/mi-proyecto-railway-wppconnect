@@ -1,10 +1,7 @@
 # --- Etapa base ---
-FROM node:20-bullseye-slim AS base
+FROM node:22.20.0-slim
 
-WORKDIR /usr/src/wpp-server
-ENV NODE_ENV=production
-
-# Instalar dependencias del sistema necesarias para Sharp y Puppeteer
+# Instalar dependencias necesarias del sistema
 RUN apt-get update && apt-get install -y \
   build-essential \
   libvips-dev \
@@ -12,19 +9,23 @@ RUN apt-get update && apt-get install -y \
   ffmpeg \
   && rm -rf /var/lib/apt/lists/*
 
-COPY package.json yarn.lock* ./
-
-RUN yarn install --production --frozen-lockfile && yarn cache clean
-
-# --- Etapa de build ---
-FROM base AS build
+# Crear carpeta de trabajo
 WORKDIR /usr/src/wpp-server
+
+# Copiar archivos del proyecto
+COPY package*.json ./
+
+# Instalar dependencias sin las de desarrollo
+RUN npm install --omit=dev
+
+# Copiar el resto del proyecto
 COPY . .
-RUN yarn build
 
-# --- Etapa final ---
-FROM base
-WORKDIR /usr/src/wpp-server
-COPY --from=build /usr/src/wpp-server /usr/src/wpp-server
+# Compilar (si usas TypeScript)
+RUN npm run build
+
+# Exponer el puerto
 EXPOSE 21465
-CMD ["node", "dist/server.js"]
+
+# Comando para ejecutar
+CMD ["npm", "start"]
