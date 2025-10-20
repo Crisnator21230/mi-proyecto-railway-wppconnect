@@ -16,7 +16,10 @@ RUN apt-get update && apt-get install -y \
 COPY package*.json ./
 
 # Instalar npm actualizado y dependencias sin las de desarrollo
-RUN npm install -g npm@11.6.2 && npm install --omit=dev --legacy-peer-deps
+RUN npm install -g npm@11.6.2 \
+ && npm set-script prepare "" \
+ && npm install --omit=dev --legacy-peer-deps
+
 
 # Copiar el resto del proyecto
 COPY . .
