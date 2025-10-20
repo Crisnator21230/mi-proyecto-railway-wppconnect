@@ -1,36 +1,57 @@
-# --- Etapa base ---
-FROM node:22.20.0
+# ==============================
+# Etapa 1: build
+# ==============================
+FROM node:22-slim AS build
 
 # Crear directorio de trabajo
 WORKDIR /usr/src/wpp-server
 
-# Instalar dependencias del sistema necesarias para wppconnect
+# Instalar dependencias necesarias del sistema
 RUN apt-get update && apt-get install -y \
     build-essential \
     libvips-dev \
     chromium \
     ffmpeg \
- && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
-# Copiar archivos de dependencias
+# Copiar archivos de configuración
 COPY package*.json ./
 
-# Instalar npm actualizado y dependencias sin las de desarrollo
-RUN npm install -g npm@11.6.2 \
- && sed -i '/"prepare":/d' package.json \
- && npm install --omit=dev --legacy-peer-deps
+# Instalar dependencias globales necesarias
+RUN npm install -g npm@11.6.2 cross-env typescript
 
+# Instalar dependencias del proyecto (sin las de desarrollo si usas build separado)
+RUN sed -i '/"prepare":/d' package.json && npm install --legacy-peer-deps
 
-
-# Copiar el resto del proyecto
+# Copiar el resto del código fuente
 COPY . .
 
-# Compilar el código TypeScript (instala TypeScript temporalmente)
-RUN npm install typescript --no-save && npm run build
+# Compilar TypeScript → genera dist/
+RUN npm run build
 
+# ==============================
+# Etapa 2: runtime
+# ==============================
+FROM node:22-slim
 
-# Exponer el puerto que usa tu app (por ejemplo, 21465)
+WORKDIR /usr/src/wpp-server
+
+# Instalar dependencias necesarias en runtime
+RUN apt-get update && apt-get install -y \
+    libvips-dev \
+    chromium \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar solo lo necesario del build
+COPY --from=build /usr/src/wpp-server/dist ./dist
+COPY --from=build /usr/src/wpp-server/package*.json ./
+
+# Instalar solo dependencias necesarias para producción
+RUN npm install --omit=dev --legacy-peer-deps
+
+# Exponer el puerto (ajústalo según tu app)
 EXPOSE 21465
 
-# Comando de inicio (usando cross-env para compatibilidad)
+# Comando de inicio (usando cross-env)
 CMD ["npx", "cross-env", "NODE_ENV=production", "node", "./dist/server.js"]
