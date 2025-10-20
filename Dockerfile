@@ -17,8 +17,9 @@ COPY package*.json ./
 
 # Instalar npm actualizado y dependencias sin las de desarrollo
 RUN npm install -g npm@11.6.2 \
- && npm set-script prepare "" \
+ && sed -i '/"prepare":/d' package.json \
  && npm install --omit=dev --legacy-peer-deps
+
 
 
 # Copiar el resto del proyecto
