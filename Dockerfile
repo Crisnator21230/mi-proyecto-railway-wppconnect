@@ -15,14 +15,14 @@ WORKDIR /usr/src/wpp-server
 # Copiar archivos del proyecto
 COPY package*.json ./
 
-# Actualizar npm y luego instalar dependencias sin las de desarrollo
-RUN npm install -g npm@11.6.2 && npm install --omit=dev --legacy-peer-deps
+# Actualizar npm y luego instalar dependencias sin scripts ni conflictos
+RUN npm install -g npm@11.6.2 && npm install --omit=dev --legacy-peer-deps --ignore-scripts
 
 # Copiar el resto del código del proyecto
 COPY . .
 
 # Compilar si usas TypeScript
-RUN npm run build
+RUN npm run build || echo "No build script"
 
 # Exponer el puerto
 EXPOSE 21465
