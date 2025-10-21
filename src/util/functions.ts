@@ -28,10 +28,10 @@ import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
 
-import config from '../config/config';
-import { convert } from '../mapper/index';
-import { ServerOptions } from '../types/ServerOptions';
-import { bucketAlreadyExists } from './bucketAlreadyExists';
+import config from '../config/config.js';
+import { convert } from '../mapper/index.js';
+import { ServerOptions } from '../types/ServerOptions.js';
+import { bucketAlreadyExists } from './bucketAlreadyExists.js';
 
 let mime: any, crypto: any; //, aws: any;
 if (config.webhook.uploadS3) {
