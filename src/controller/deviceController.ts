@@ -2247,7 +2247,7 @@ export async function chatWoot(req: Request, res: Response): Promise<any> {
      }
    */
   const { session } = req.params;
-  const client: any = clientsArray[session];
+  const client: any = clientsArray[Number(session)];
   if (client == null || client.status !== 'CONNECTED') return;
   try {
     if (await client.isConnected()) {
