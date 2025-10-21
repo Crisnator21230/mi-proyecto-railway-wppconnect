@@ -43,7 +43,7 @@ export let clientsArray: Whatsapp[] = [];
 export const sessions = [];
 export const eventEmitter = new EventEmitter();
 
-export function deleteSessionOnArray(session: string): void {
+export function deleteSessionOnArray(session: number): void {
   const newArray = clientsArray;
   delete clientsArray[session];
   clientsArray = newArray;
