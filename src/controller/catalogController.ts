@@ -770,7 +770,8 @@ export async function sendLinkCatalog(req: Request, res: Response) {
     res.status(401).send({
       message: 'phones was not informed',
     });
-  const results = [];
+  let results: any[] = []; // temporal
+
   try {
     const session = await req.client.getWid();
     const catalogLink = createCatalogLink(session);
