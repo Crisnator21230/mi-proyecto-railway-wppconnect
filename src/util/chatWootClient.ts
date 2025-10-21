@@ -17,9 +17,9 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { default as FormData } from 'form-data';
 import mime from 'mime-types';
 
-import bufferutils from './bufferutils';
+import bufferutils from './bufferutils.js';
 // import bufferUtils from './bufferutils';
-import { eventEmitter } from './sessionUtil';
+import { eventEmitter } from './sessionUtil.js';
 
 export default class chatWootClient {
   declare config: any;

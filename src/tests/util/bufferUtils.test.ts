@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 
-import bufferUtils from '../../util/bufferutils';
+import bufferUtils from '../../util/bufferutils.js';
 
 function generateRandomData(length: number): string {
   const characters =

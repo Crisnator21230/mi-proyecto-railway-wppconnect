@@ -20,10 +20,10 @@ import fileSystem from 'fs';
 import unzipper from 'unzipper';
 
 import { logger } from '..';
-import config from '../config/config';
-import { startAllSessions } from './functions';
-import getAllTokens from './getAllTokens';
-import { clientsArray } from './sessionUtil';
+import config from '../config/config.js';
+import { startAllSessions } from './functions.js';
+import getAllTokens from './getAllTokens.js';
+import { clientsArray } from './sessionUtil.js';
 
 export function backupSessions(req: Request): Promise<any> {
   // eslint-disable-next-line no-async-promise-executor

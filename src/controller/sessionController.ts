@@ -22,10 +22,10 @@ import { Logger } from 'winston';
 
 import { version } from '../../package.json';
 import config from '../config/config';
-import CreateSessionUtil from '../util/createSessionUtil';
-import { callWebHook, contactToArray } from '../util/functions';
-import getAllTokens from '../util/getAllTokens';
-import { clientsArray, deleteSessionOnArray } from '../util/sessionUtil';
+import CreateSessionUtil from '../util/createSessionUtil.js';
+import { callWebHook, contactToArray } from '../util/functions.js';
+import getAllTokens from '../util/getAllTokens.js';
+import { clientsArray, deleteSessionOnArray } from '../util/sessionUtil.js';
 
 const SessionUtil = new CreateSessionUtil();
 

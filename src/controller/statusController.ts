@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { unlinkAsync } from '../util/functions';
+import { unlinkAsync } from '../util/functions.js';
 
 function returnError(req: Request, res: Response, error: any) {
   req.logger.error(error);

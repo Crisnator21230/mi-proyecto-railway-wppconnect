@@ -19,7 +19,7 @@ import {
   contactToArray,
   groupNameToArray,
   groupToArray,
-} from '../util/functions';
+} from '../util/functions.js';
 
 export async function getAllGroups(req: Request, res: Response) {
   /**

@@ -16,8 +16,8 @@
 import { Chat } from '@wppconnect-team/wppconnect';
 import { Request, Response } from 'express';
 
-import { contactToArray, unlinkAsync } from '../util/functions';
-import { clientsArray } from '../util/sessionUtil';
+import { contactToArray, unlinkAsync } from '../util/functions.js';
+import { clientsArray } from '../util/sessionUtil.js';
 
 function returnSucess(res: any, session: any, phone: any, data: any) {
   res.status(201).json({

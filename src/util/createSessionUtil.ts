@@ -16,12 +16,12 @@
 import { create, SocketState } from '@wppconnect-team/wppconnect';
 import { Request } from 'express';
 
-import { download } from '../controller/sessionController';
-import { WhatsAppServer } from '../types/WhatsAppServer';
-import chatWootClient from './chatWootClient';
-import { autoDownload, callWebHook, startHelper } from './functions';
-import { clientsArray, eventEmitter } from './sessionUtil';
-import Factory from './tokenStore/factory';
+import { download } from '../controller/sessionController.js';
+import { WhatsAppServer } from '../types/WhatsAppServer.js';
+import chatWootClient from './chatWootClient.js';
+import { autoDownload, callWebHook, startHelper } from './functions.js';
+import { clientsArray, eventEmitter } from './sessionUtil.js';
+import Factory from './tokenStore/factory.js';
 
 export default class CreateSessionUtil {
   startChatWootClient(client: any) {
