@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../config/config';
 import FileTokenStore from './fileTokenStory';
 import MongodbTokenStore from './mongodbTokenStory';
 import RedisTokenStore from './redisTokenStory';

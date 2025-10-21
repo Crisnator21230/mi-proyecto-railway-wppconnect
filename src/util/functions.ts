@@ -28,7 +28,7 @@ import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
 
-import config from '../config';
+import config from '../config/config';
 import { convert } from '../mapper/index';
 import { ServerOptions } from '../types/ServerOptions';
 import { bucketAlreadyExists } from './bucketAlreadyExists';

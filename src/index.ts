@@ -25,7 +25,7 @@ import { Server as Socket } from 'socket.io';
 import { Logger } from 'winston';
 
 import { version } from '../package.json';
-import config from './config';
+import config from './config/config';
 import { convert } from './mapper/index';
 import routes from './routes';
 import { ServerOptions } from './types/ServerOptions';

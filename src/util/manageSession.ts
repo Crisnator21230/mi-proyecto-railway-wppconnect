@@ -20,7 +20,7 @@ import fileSystem from 'fs';
 import unzipper from 'unzipper';
 
 import { logger } from '..';
-import config from '../config';
+import config from '../config/config';
 import { startAllSessions } from './functions';
 import getAllTokens from './getAllTokens';
 import { clientsArray } from './sessionUtil';

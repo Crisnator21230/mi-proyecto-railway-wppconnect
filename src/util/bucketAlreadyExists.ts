@@ -1,7 +1,7 @@
 import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
 
 import { logger } from '..';
-import config from '../config';
+import config from '../config/config';
 
 export async function bucketAlreadyExists(bucketName: string) {
   // eslint-disable-next-line no-async-promise-executor

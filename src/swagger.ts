@@ -15,7 +15,7 @@
  */
 import swaggerAutogen from 'swagger-autogen';
 
-import config from './config';
+import config from './config/config';
 
 const outputFile = './src/swagger.json';
 const endpointsFiles = ['./src/routes/index.ts'];

@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../config/config';
 import redisClient from '../db/redis/db';
 import { getIPAddress } from '../functions';
 

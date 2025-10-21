@@ -18,7 +18,7 @@ import { Request, Response } from 'express';
 import fs from 'fs';
 
 import { logger } from '..';
-import config from '../config';
+import config from '../config/config';
 import { backupSessions, restoreSessions } from '../util/manageSession';
 import { clientsArray } from '../util/sessionUtil';
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import config from './config';
+import config from './config/config.js';
 import { initServer } from './index';
 
 initServer(config);

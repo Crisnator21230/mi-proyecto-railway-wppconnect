@@ -21,7 +21,7 @@ import QRCode from 'qrcode';
 import { Logger } from 'winston';
 
 import { version } from '../../package.json';
-import config from '../config';
+import config from '../config/config';
 import CreateSessionUtil from '../util/createSessionUtil';
 import { callWebHook, contactToArray } from '../util/functions';
 import getAllTokens from '../util/getAllTokens';
