@@ -16,12 +16,10 @@
 import { Router } from 'express';
 import multer from 'multer';
 import swaggerUi from 'swagger-ui-express';
+import path from 'path';
+import fs from 'fs';
 
-
-const uploadConfig = {
-  storage: multer.memoryStorage(),
-};
-
+import uploadConfig from '../config/upload.js';
 import * as CatalogController from '../controller/catalogController.js';
 import * as CommunityController from '../controller/communityController.js';
 import * as DeviceController from '../controller/deviceController.js';
@@ -38,8 +36,11 @@ import verifyToken from '../middleware/auth.js';
 import * as HealthCheck from '../middleware/healthCheck.js';
 import * as prometheusRegister from '../middleware/instrumentation.js';
 import statusConnection from '../middleware/statusConnection.js';
-import swaggerDocument from '../swagger.json' assert { type: 'json' };
 
+// Leer swagger.json de manera compatible con Node 22
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '../swagger.json'), 'utf-8')
+);
 
 const upload = multer(uploadConfig as any) as any;
 const routes: Router = Router();
