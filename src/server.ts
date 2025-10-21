@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 import config from './config/config.js';
-import { initServer } from './index';
+import { initServer } from './index.js';
 
 initServer(config);
