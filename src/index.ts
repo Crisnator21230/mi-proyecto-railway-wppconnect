@@ -26,15 +26,13 @@ import { Logger } from 'winston';
 //js
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname, resolve } from 'path';
 
-// Obtener path del directorio actual
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Leer package.json
 const packageJson = JSON.parse(
-  readFileSync(join(__dirname, '../package.json'), 'utf-8')
+  readFileSync(resolve(__dirname, '../package.json'), 'utf8')
 );
 const { version } = packageJson;
 
