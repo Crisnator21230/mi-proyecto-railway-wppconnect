@@ -157,7 +157,7 @@ export async function clearSessionData(req: Request, res: Response) {
       });
     }
     if (req?.client?.page) {
-      delete clientsArray[req.params.session];
+      delete clientsArray[Number(req.params.session)];
       await req.client.logout();
     }
     const path = config.customUserDataDir + session;
