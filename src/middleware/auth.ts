@@ -16,7 +16,7 @@
 import bcrypt from 'bcrypt';
 import { NextFunction, Request, Response } from 'express';
 
-import { clientsArray } from '../util/sessionUtil';
+import { clientsArray } from '../util/sessionUtil.js';
 
 function formatSession(session: string) {
   return session.split(':')[0];

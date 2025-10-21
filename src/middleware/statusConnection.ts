@@ -16,7 +16,7 @@
 
 import { NextFunction, Request, Response } from 'express';
 
-import { contactToArray } from '../util/functions';
+import { contactToArray } from '../util/functions.js';
 
 export default async function statusConnection(
   req: Request,

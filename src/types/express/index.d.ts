@@ -2,7 +2,7 @@ import { Whatsapp } from '@wppconnect-team/wppconnect';
 import { Socket } from 'socket.io';
 import { Logger } from 'winston';
 
-import { ServerOptions } from '../ServerOptions';
+import { ServerOptions } from '../ServerOptions.js';
 
 // to make the file a module and avoid the TypeScript error
 export {};

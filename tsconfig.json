@@ -14,5 +14,5 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
   },
-  "include": ["src/**/*", "config/**/*"]
+  "include": ["src/**/*", "middleware/**/*","types/**/*","config/**/*"]
 }

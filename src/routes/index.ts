@@ -30,10 +30,10 @@ import * as NewsletterController from '../controller/newsletterController.js';
 import * as OrderController from '../controller/orderController.js';
 import * as SessionController from '../controller/sessionController.js';
 import * as StatusController from '../controller/statusController.js';
-import verifyToken from '../middleware/auth';
-import * as HealthCheck from '../middleware/healthCheck';
-import * as prometheusRegister from '../middleware/instrumentation';
-import statusConnection from '../middleware/statusConnection';
+import verifyToken from '../middleware/auth.js';
+import * as HealthCheck from '../middleware/healthCheck.js';
+import * as prometheusRegister from '../middleware/instrumentation.js';
+import statusConnection from '../middleware/statusConnection.js';
 import swaggerDocument from '../swagger.json';
 
 const upload = multer(uploadConfig as any) as any;
