@@ -71,7 +71,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction): any => {
         if (result) {
           req.session = formatSession(req.params.session);
           req.token = tokenDecrypt;
-          req.client = clientsArray[req.session];
+          req.client = (clientsArray as Record<number, any>)[Number(req.session)];;
           next();
         } else {
           return res

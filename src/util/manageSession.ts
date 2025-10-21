@@ -114,14 +114,14 @@ export async function restoreSessions(
 export async function closeAllSessions(req: Request) {
   const names = await getAllTokens(req);
   names.forEach(async (session: string) => {
-    const client = clientsArray[session];
+    const client = clientsArray[Number(session)];
     try {
-      delete clientsArray[session];
-      if (client?.status) {
+      delete clientsArray[Number(session)];
+      if (client?.statusFind) {
         logger.info('Stopping session: ' + session);
         await client.page.browser().close();
       }
-      delete clientsArray[session];
+      delete clientsArray[Number(session)];
     } catch (error) {
       logger.error('Not was possible stop session: ' + session);
     }
