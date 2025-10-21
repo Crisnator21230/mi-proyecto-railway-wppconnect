@@ -17,7 +17,11 @@ import { Router } from 'express';
 import multer from 'multer';
 import swaggerUi from 'swagger-ui-express';
 
-import uploadConfig from '../config/upload.js';
+
+const uploadConfig = {
+  storage: multer.memoryStorage(),
+};
+
 import * as CatalogController from '../controller/catalogController.js';
 import * as CommunityController from '../controller/communityController.js';
 import * as DeviceController from '../controller/deviceController.js';
@@ -34,7 +38,8 @@ import verifyToken from '../middleware/auth.js';
 import * as HealthCheck from '../middleware/healthCheck.js';
 import * as prometheusRegister from '../middleware/instrumentation.js';
 import statusConnection from '../middleware/statusConnection.js';
-import swaggerDocument from '../swagger.json';
+import swaggerDocument from '../swagger.json' assert { type: 'json' };
+
 
 const upload = multer(uploadConfig as any) as any;
 const routes: Router = Router();
