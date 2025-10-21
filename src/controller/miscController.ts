@@ -20,7 +20,7 @@ import fs from 'fs';
 import { logger } from '..';
 import config from '../config/config.js';
 import { backupSessions, restoreSessions } from '../util/manageSession.js';
-import { clientsArray } from '../util/sessionUtil.js';
+import { clientsArray } from '../util/sessionUtil';
 
 export async function backupAllSessions(req: Request, res: Response) {
   /**
