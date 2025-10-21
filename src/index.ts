@@ -27,8 +27,8 @@ import { Logger } from 'winston';
 import { version } from '../package.json';
 import config from './config/config.js';
 import { convert } from './mapper/index.js';
-import routes from './routes/index';
-import { ServerOptions } from './types/ServerOptions';
+import routes from './routes/index.js';
+import { ServerOptions } from './types/ServerOptions.js';
 import {
   createFolders,
   setMaxListners,
