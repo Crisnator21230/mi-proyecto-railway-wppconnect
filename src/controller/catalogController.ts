@@ -15,7 +15,7 @@
  */
 import { Request, Response } from 'express';
 
-import { createCatalogLink } from '../util/functions';
+import { createCatalogLink } from '../util/functions.js';
 
 export async function getProducts(req: Request, res: Response) {
   /**
