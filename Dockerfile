@@ -1,10 +1,11 @@
-# -----------------------
+# ==============================
 # Stage: build
-# -----------------------
+# ==============================
 FROM node:22-slim AS build
 
 WORKDIR /usr/src/wpp-server
 
+# Dependencias del sistema necesarias (sharp, chromium, ffmpeg)
 RUN apt-get update && apt-get install -y \
     build-essential \
     libvips-dev \
@@ -12,53 +13,51 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
   && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
+# Copiar package files primero (mejor caching)
 COPY package*.json ./
 
-# Install tools needed for build
-RUN npm install -g npm@11.6.2 cross-env typescript
+# Actualizar npm a la versión correcta
+RUN npm install -g npm@11.6.2
 
-# Remove prepare to avoid husky triggers
-RUN sed -i '/"prepare":/d' package.json
+# Instalar todas las dependencias (sin scripts para evitar husky/prepare)
+RUN npm ci --legacy-peer-deps --ignore-scripts
 
-# Install all deps (including dev) for build tools
-RUN npm install --legacy-peer-deps
-
-# Copy source and build
+# Copiar el código fuente
 COPY . .
-RUN npm run build
 
-# show dist contents for build logs
-RUN echo "=== dist contents (build stage) ===" && ls -la /usr/src/wpp-server/dist || true
+# Compilar TypeScript
+RUN npx tsc --project tsconfig.json || npx tsc
 
-# -----------------------
+# ==============================
 # Stage: runtime
-# -----------------------
+# ==============================
 FROM node:22-slim AS runtime
 
 WORKDIR /usr/src/wpp-server
 
+# Dependencias del sistema necesarias en runtime
 RUN apt-get update && apt-get install -y \
     libvips-dev \
     chromium \
     ffmpeg \
   && rm -rf /var/lib/apt/lists/*
 
-# Copy built artifacts and prod package.json
+# Copiar artefactos del build
 COPY --from=build /usr/src/wpp-server/dist ./dist
 COPY --from=build /usr/src/wpp-server/package*.json ./
-# Copy node_modules to avoid re-running npm install and re-triggering scripts
-COPY --from=build /usr/src/wpp-server/node_modules ./node_modules
 
-# Copy the startup script and make executable
+# Instalar solo dependencias de producción
+RUN npm ci --omit=dev --legacy-peer-deps --ignore-scripts
+
+# Copiar script de inicio
 COPY start.sh ./start.sh
 RUN chmod +x ./start.sh
 
-# Safety: ensure no prepare script if any odd package.json present
-RUN sed -i '/"prepare":/d' package.json || true
-
+# Variables por defecto (Railway las sobrescribe)
+ENV NODE_ENV=production
 ENV PORT=21465
+
 EXPOSE ${PORT}
 
-# Use the debug start script so logs show what is in dist and which file is used
+# Comando final
 CMD ["./start.sh"]
