@@ -12,12 +12,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- 
+ */
 
 import { Request, Response } from 'express';
 import fs from 'fs';
 
-import { logger } from '..';
+import { logger } from '../index.js';
 import config from '../config/config.js';
 import { backupSessions, restoreSessions } from '../util/manageSession.js';
 import { clientsArray } from '../util/sessionUtil.js';
@@ -41,7 +41,7 @@ export async function backupAllSessions(req: Request, res: Response) {
           }
         },
       }
-     
+     */
   const { secretkey } = req.params;
 
   if (secretkey !== config.secretKey) {
@@ -88,7 +88,7 @@ export async function restoreAllSessions(req: Request, res: Response) {
         }
       }
     }
-  
+  */
   const { secretkey } = req.params;
 
   if (secretkey !== config.secretKey) {
@@ -120,7 +120,7 @@ export async function takeScreenshot(req: Request, res: Response) {
     #swagger.parameters["session"] = {
     schema: 'NERDWHATS_AMERICA'
     }
-  
+  */
 
   try {
     const result = await req.client.takeScreenshot();
@@ -145,7 +145,7 @@ export async function clearSessionData(req: Request, res: Response) {
     #swagger.parameters["session"] = {
     schema: 'NERDWHATS_AMERICA'
     }
-  
+  */
 
   try {
     const { secretkey, session } = req.params;
@@ -215,145 +215,12 @@ export async function setLimit(req: Request, res: Response) {
         },
       },
     }
-  
+  */
 
   try {
     const { type, value } = req.body;
     if (!type || !value) throw new Error('Send de type and value');
 
-    const result = await req.client.setLimit(type, value);
-    res.status(200).json(result);
-  } catch (error: any) {
-    res.status(500).json({
-      status: false,
-      message: 'Error on set limit',
-      error: error,
-    });
-  }
-}
-*/
-/*
- * Copyright 2023 WPPConnect Team
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * ...
- */
-
-import { Request, Response } from 'express';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-import { logger } from '..';
-import config from '../config/config.js';
-import { backupSessions, restoreSessions } from '../util/manageSession.js';
-import { clientsArray } from '../util/sessionUtil.js';
-
-// ESM __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-export async function backupAllSessions(req: Request, res: Response) {
-  const { secretkey } = req.params;
-
-  if (secretkey !== config.secretKey) {
-    return res.status(400).json({
-      response: 'error',
-      message: 'The token is incorrect',
-    });
-  }
-
-  try {
-    res.setHeader('Content-Type', 'application/zip');
-    res.send(await backupSessions(req));
-  } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: 'Error on backup session',
-      error: error,
-    });
-  }
-}
-
-export async function restoreAllSessions(req: Request, res: Response) {
-  const { secretkey } = req.params;
-
-  if (secretkey !== config.secretKey) {
-    return res.status(400).json({
-      response: 'error',
-      message: 'The token is incorrect',
-    });
-  }
-
-  try {
-    const result = await restoreSessions(req, req.file as any);
-    res.status(200).json(result);
-  } catch (error: any) {
-    res.status(500).json({
-      status: false,
-      message: 'Error on restore session',
-      error: error,
-    });
-  }
-}
-
-export async function takeScreenshot(req: Request, res: Response) {
-  try {
-    if (!req.client) throw new Error('Client not initialized');
-    const result = await req.client.takeScreenshot();
-    res.status(200).json(result);
-  } catch (error: any) {
-    res.status(500).json({
-      status: false,
-      message: 'Error on take screenshot',
-      error: error,
-    });
-  }
-}
-
-export async function clearSessionData(req: Request, res: Response) {
-  try {
-    const { secretkey, session } = req.params;
-
-    if (secretkey !== config.secretKey) {
-      return res.status(400).json({
-        response: 'error',
-        message: 'The token is incorrect',
-      });
-    }
-
-    if (req?.client?.page) {
-      delete clientsArray[Number(session)];
-      await req.client.logout();
-    }
-
-    const path = join(config.customUserDataDir, session);
-    const pathToken = join(__dirname, '../../../tokens', `${session}.data.json`);
-
-    if (fs.existsSync(path)) {
-      await fs.promises.rm(path, { recursive: true });
-    }
-    if (fs.existsSync(pathToken)) {
-      await fs.promises.rm(pathToken);
-    }
-
-    res.status(200).json({ success: true });
-  } catch (error: any) {
-    logger.error(error);
-    res.status(500).json({
-      status: false,
-      message: 'Error on clear session data',
-      error: error,
-    });
-  }
-}
-
-export async function setLimit(req: Request, res: Response) {
-  try {
-    const { type, value } = req.body;
-    if (!type || value === undefined) throw new Error('Send type and value');
-
-    if (!req.client) throw new Error('Client not initialized');
     const result = await req.client.setLimit(type, value);
     res.status(200).json(result);
   } catch (error: any) {

@@ -37,10 +37,13 @@ import * as HealthCheck from '../middleware/healthCheck.js';
 import * as prometheusRegister from '../middleware/instrumentation.js';
 import statusConnection from '../middleware/statusConnection.js';
 
-// Leer swagger.json de manera compatible con Node 22
-const swaggerDocument = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, '../swagger.json'), 'utf-8')
-);
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const swaggerDocument = JSON.parse(readFileSync(resolve(__dirname, '../swagger.json'), 'utf8'));
 
 const upload = multer(uploadConfig as any) as any;
 const routes: Router = Router();
