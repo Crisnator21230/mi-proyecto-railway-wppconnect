@@ -33,8 +33,8 @@ import {
   createFolders,
   setMaxListners,
   startAllSessions,
-} from './util/functions';
-import { createLogger } from './util/logger';
+} from './util/functions.js';
+import { createLogger } from './util/logger.js';
 
 //require('dotenv').config();
 
