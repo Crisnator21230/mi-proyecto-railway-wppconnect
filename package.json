@@ -8,7 +8,7 @@
   "scripts": {
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "tsc",
-    "build": "npm run build:types && npm run build:js",
+    "build": "npx tsc",
     "changelog:last": "conventional-changelog -p angular -r 2",
     "changelog:preview": "conventional-changelog -p angular -u",
     "changelog:update": "conventional-changelog -p angular -i CHANGELOG.md -s",
@@ -20,7 +20,7 @@
     "lint": "eslint --ext .ts src",
     "prepare": "husky install",
     "release": "release-it",
-    "start": "cross-env NODE_ENV=production node ./dist/server.js",
+    "start": "node dist/src/start.js",
     "start:prod": "node ./dist/server.js",
     "heroku-postbuild": "npm run build",
     "swagger:copy-assets": "shx cp -R ./node_modules/swagger-ui-dist ./swagger-docs",
