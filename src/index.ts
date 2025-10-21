@@ -24,7 +24,9 @@ import process from 'process';
 import { Server as Socket } from 'socket.io';
 import { Logger } from 'winston';
 
-import { version } from '../package.json';
+import packageJson from '../package.json' assert { type: 'json' };
+const { version } = packageJson;
+
 import config from './config/config.js';
 import { convert } from './mapper/index.js';
 import routes from './routes/index.js';
