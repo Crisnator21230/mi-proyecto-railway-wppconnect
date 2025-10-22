@@ -20,7 +20,8 @@ import mime from 'mime-types';
 import QRCode from 'qrcode';
 import { Logger } from 'winston';
 
-import { version } from '../../package.json';
+import packageJson from '../../package.json' assert { type: 'json' }; 
+const { version } = packageJson;
 import config from '../config/config.js';
 import CreateSessionUtil from '../util/createSessionUtil.js';
 import { callWebHook, contactToArray } from '../util/functions.js';
