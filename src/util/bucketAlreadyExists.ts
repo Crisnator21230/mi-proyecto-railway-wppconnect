@@ -1,6 +1,6 @@
 import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
 
-import { logger } from '..';
+import { logger } from '../index.js';
 import config from '../config/config.js';
 
 export async function bucketAlreadyExists(bucketName: string) {
