@@ -52,8 +52,9 @@ RUN chmod +x ./start.sh
 
 # Variables por defecto (Railway las sobrescribe)
 ENV NODE_ENV=production
-ENV PORT=21465
+ENV PORT=3000
 
-EXPOSE ${PORT}
+EXPOSE 3000
+
 
 CMD ["./start.sh"]
