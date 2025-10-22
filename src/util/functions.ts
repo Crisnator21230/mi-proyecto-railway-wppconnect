@@ -240,37 +240,50 @@ export async function autoDownload(client: any, req: any, message: any) {
 
 export async function startAllSessions(config: any, logger: any) {
   try {
-    const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;
-    const isRailway = !!publicDomain;
-    const isLocal =
-      !isRailway &&
-      (config.host.includes('localhost') || config.host.includes('0.0.0.0'));
+    const port = config.port || Number(process.env.PORT) || 3000;
 
-    let protocol: string;
-    let host: string;
+    // Railway variables 
+    const railwayPublic = process.env.RAILWAY_PUBLIC_DOMAIN;
+    const railwayPrivate = process.env.RAILWAY_PRIVATE_DOMAIN;
 
-    if (isRailway) {
-      // Ejecuta llamada local dentro del contenedor
-      protocol = 'http';
-      host = `127.0.0.1:${config.port}`;
-    } else if (isLocal) {
-      protocol = 'http';
-      host = `localhost:${config.port}`;
-    } else {
-      protocol = 'https';
-      host = config.host;
+    // Decide si estamos en Railway por la presencia de esas vars
+    const isRailway = !!(railwayPublic || railwayPrivate);
+
+    // Host a usar:
+    // - en Railway preferimos RAILWAY_PUBLIC_DOMAIN, sino RAILWAY_PRIVATE_DOMAIN
+    // - en local usamos 127.0.0.1:PORT
+    const host = isRailway
+      ? (railwayPublic || railwayPrivate) as string
+      : `127.0.0.1:${port}`;
+
+    // Protocol: si usamos host local -> http, si es Railway -> https
+    const protocol = isRailway ? 'https' : 'http';
+
+    // Secret key: prefer config, sino variable de entorno
+    const secret = config?.secretKey || process.env.SECRET_KEY;
+    if (!secret) {
+      logger.error('No secretKey provided in config or process.env.SECRET_KEY');
+      return;
     }
 
-    const url = `${protocol}://${host}/api/${config.secretKey}/start-all`;
+    const url = `${protocol}://${host}/api/${encodeURIComponent(
+      secret
+    )}/start-all`;
 
     logger.info(`Starting all sessions using URL: ${url}`);
 
-    await axios.post(url);
-    logger.info(' All sessions started successfully.');
+    const response = await axios.post(url, undefined, { timeout: 10000 });
+    logger.info(`Sessions started successfully: ${response.status}`);
   } catch (e: any) {
-    logger.error(`Error starting sessions: ${e.message}`);
+    // Mostrar mensaje legible y, si existe, cuerpo/stack
+    logger.error(
+      `Error starting sessions: ${e?.message || e} ${
+        e?.response ? `- status: ${e.response.status}` : ''
+      }`
+    );
   }
 }
+
 
 
 
