@@ -110,7 +110,9 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
     next();
   });
 
-  app.use(routes);
+  app.get('/', (req, res) => {
+  res.status(200).send('✅ Servidor corriendo correctamente - WPPConnect en Railway');
+  });
 
   createFolders();
   const http = createServer(app);
@@ -128,15 +130,33 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
     });
   });
 
-  http.listen(PORT, () => {
-    logger.info(`Server is running on port: ${PORT}`);
-    logger.info(
-      `\x1b[31m Visit ${serverOptions.host}:${PORT}/api-docs for Swagger docs`
-    );
-    logger.info(`WPPConnect-Server version: ${version}`);
+http.listen(PORT, () => {
+  // ✅ Mostrar puerto y versión
+  logger.info(`✅ Server is running on port: ${PORT}`);
+  logger.info(`WPPConnect-Server version: ${version}`);
 
-    if (serverOptions.startAllSession) startAllSessions(serverOptions, logger);
-  });
+  // ✅ Detectar dominio público de Railway o usar local
+  const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;
+  const isLocal =
+    !publicDomain &&
+    (serverOptions.host?.includes('localhost') ||
+      serverOptions.host?.includes('0.0.0.0'));
+
+  const protocol = isLocal ? 'http' : 'https';
+  const baseUrl = publicDomain
+    ? `${protocol}://${publicDomain}`
+    : `${protocol}://${serverOptions.host || 'localhost'}:${PORT}`;
+
+  // ✅ Mostrar en logs la URL exacta del Swagger
+  logger.info(`\x1b[31m 🔗 Visit ${baseUrl}/api-docs for Swagger docs`);
+
+  // ✅ Llamar a la función startAllSessions solo si está habilitado
+  if (serverOptions.startAllSession) {
+    logger.info('🟡 Starting all sessions...');
+    startAllSessions(serverOptions, logger);
+  }
+});
+
 
   if (config.log.level === 'error' || config.log.level === 'warn') {
     console.log(`\x1b[33m ======================================================

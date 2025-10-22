@@ -240,18 +240,36 @@ export async function autoDownload(client: any, req: any, message: any) {
 
 export async function startAllSessions(config: any, logger: any) {
   try {
-    const protocol = config.host.includes('localhost') || config.host.includes('0.0.0.0')
-      ? 'http'
-      : 'https';
+    // 1️⃣ Detectar dominio público (Railway u otros)
+    const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;
 
-    const url = `${protocol}://${config.host}:${config.port}/api/${config.secretKey}/start-all`;
+    // 2️⃣ Detectar protocolo: HTTPS para dominio público, HTTP local
+    const isLocal =
+      config.host?.includes('localhost') ||
+      config.host?.includes('0.0.0.0') ||
+      !publicDomain;
+
+    const protocol = isLocal ? 'http' : 'https';
+
+    // 3️⃣ Construir URL base dependiendo del entorno
+    const baseUrl = publicDomain
+      ? `${protocol}://${publicDomain}`
+      : `${protocol}://${config.host}:${config.port}`;
+
+    // 4️⃣ URL final para iniciar sesiones
+    const url = `${baseUrl}/api/${config.secretKey}/start-all`;
 
     logger.info(`Starting all sessions using URL: ${url}`);
-    await axios.post(url);
-  } catch (e) {
-    logger.error(`Error starting sessions: ${e}`);
+
+    // 5️⃣ Llamada al endpoint
+    const response = await axios.post(url);
+
+    logger.info(`Sessions started successfully. Response: ${response.status} ${response.statusText}`);
+  } catch (e: any) {
+    logger.error(`Error starting sessions: ${e.message || e}`);
   }
 }
+
 
 export async function startHelper(client: any, req: any) {
   if (req.serverOptions.webhook.allUnreadOnStart) await sendUnread(client, req);
