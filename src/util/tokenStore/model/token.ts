@@ -1,4 +1,4 @@
-import config from '../../../config/config';
+import config from '../../../config/config.js';
 import mongoose from '../../db/mongodb/db';
 
 const Token =
