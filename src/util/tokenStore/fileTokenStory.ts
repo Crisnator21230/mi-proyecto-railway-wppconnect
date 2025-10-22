@@ -1,4 +1,4 @@
-import { FileTokenStore as fsTokenStore } from './FileTokenStore/FileTokenStore';
+import { FileTokenStore as fsTokenStore } from './FileTokenStore/FileTokenStore.js';
 
 class FileTokenStore {
   declare client: any;

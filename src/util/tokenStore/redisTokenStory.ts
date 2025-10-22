@@ -1,6 +1,6 @@
-import config from '../../config/config';
-import redisClient from '../db/redis/db';
-import { getIPAddress } from '../functions';
+import config from '../../config/config.js';
+import redisClient from '../db/redis/db.js';
+import { getIPAddress } from '../functions.js';
 
 class RedisTokenStore {
   declare client: any;

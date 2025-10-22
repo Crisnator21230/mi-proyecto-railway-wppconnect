@@ -1,7 +1,7 @@
-import config from '../../config/config';
-import FileTokenStore from './fileTokenStory';
-import MongodbTokenStore from './mongodbTokenStory';
-import RedisTokenStore from './redisTokenStory';
+import config from '../../config/config.js';
+import FileTokenStore from './fileTokenStory.js';
+import MongodbTokenStore from './mongodbTokenStory.js';
+import RedisTokenStore from './redisTokenStory.js';
 
 class Factory {
   public createTokenStory(client: any) {
