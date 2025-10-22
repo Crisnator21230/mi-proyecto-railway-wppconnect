@@ -20,9 +20,9 @@ import mime from 'mime-types';
 import QRCode from 'qrcode';
 import { Logger } from 'winston';
 
-import packageJson from '../../package.json' assert { type: 'json' }; 
+const packageJson = JSON.parse(fs.readFileSync('./package.json', 'utf-8'));
 const { version } = packageJson;
-import config from '../config/config.js';
+import config from '../config/config';
 import CreateSessionUtil from '../util/createSessionUtil.js';
 import { callWebHook, contactToArray } from '../util/functions.js';
 import getAllTokens from '../util/getAllTokens.js';
