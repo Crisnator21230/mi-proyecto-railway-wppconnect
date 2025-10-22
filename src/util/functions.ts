@@ -27,6 +27,7 @@ import mimetypes from 'mime-types';
 import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
+import axios from 'axios';
 
 import config from '../config/config.js';
 import { convert } from '../mapper/index.js';
@@ -239,11 +240,16 @@ export async function autoDownload(client: any, req: any, message: any) {
 
 export async function startAllSessions(config: any, logger: any) {
   try {
-    await api.post(
-      `${config.host}:${config.port}/api/${config.secretKey}/start-all`
-    );
+    const protocol = config.host.includes('localhost') || config.host.includes('0.0.0.0')
+      ? 'http'
+      : 'https';
+
+    const url = `${protocol}://${config.host}:${config.port}/api/${config.secretKey}/start-all`;
+
+    logger.info(`Starting all sessions using URL: ${url}`);
+    await axios.post(url);
   } catch (e) {
-    logger.error(e);
+    logger.error(`Error starting sessions: ${e}`);
   }
 }
 
