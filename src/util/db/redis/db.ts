@@ -1,4 +1,4 @@
-import config from '../../../config/config';
+import config from '../../../config/config.js';
 
 const redis = config.tokenStoreType === 'redis' ? require('redis') : null;
 

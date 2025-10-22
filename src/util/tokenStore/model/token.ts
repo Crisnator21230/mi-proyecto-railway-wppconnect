@@ -1,5 +1,5 @@
 import config from '../../../config/config.js';
-import mongoose from '../../db/mongodb/db';
+import mongoose from '../../db/mongodb/db.js';
 
 const Token =
   config.tokenStoreType === 'mongodb'
