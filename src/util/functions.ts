@@ -240,23 +240,33 @@ export async function autoDownload(client: any, req: any, message: any) {
 
 export async function startAllSessions(config: any, logger: any) {
   try {
-    // Detectar si está en Railway
     const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;
+    const isRailway = !!publicDomain;
     const isLocal =
-      !publicDomain &&
+      !isRailway &&
       (config.host.includes('localhost') || config.host.includes('0.0.0.0'));
 
-    // Seleccionar protocolo y host adecuados
-    const protocol = isLocal ? 'http' : 'https';
-    const host = isLocal
-      ? `localhost:${config.port}`
-      : publicDomain || `${config.host}:${config.port}`;
+    let protocol: string;
+    let host: string;
+
+    if (isRailway) {
+      // Ejecuta llamada local dentro del contenedor
+      protocol = 'http';
+      host = `127.0.0.1:${config.port}`;
+    } else if (isLocal) {
+      protocol = 'http';
+      host = `localhost:${config.port}`;
+    } else {
+      protocol = 'https';
+      host = config.host;
+    }
 
     const url = `${protocol}://${host}/api/${config.secretKey}/start-all`;
 
     logger.info(`Starting all sessions using URL: ${url}`);
 
     await axios.post(url);
+    logger.info(' All sessions started successfully.');
   } catch (e: any) {
     logger.error(`Error starting sessions: ${e.message}`);
   }

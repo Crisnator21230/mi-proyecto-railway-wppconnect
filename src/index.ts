@@ -132,7 +132,7 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
 
 http.listen(PORT, () => {
   // ✅ Mostrar puerto y versión
-  logger.info(`✅ Server is running on port: ${PORT}`);
+  logger.info(` Server is running on port: ${PORT}`);
   logger.info(`WPPConnect-Server version: ${version}`);
 
   // ✅ Detectar dominio público de Railway o usar local
@@ -148,11 +148,11 @@ http.listen(PORT, () => {
     : `${protocol}://${serverOptions.host || 'localhost'}:${PORT}`;
 
   // ✅ Mostrar en logs la URL exacta del Swagger
-  logger.info(`\x1b[31m 🔗 Visit ${baseUrl}/api-docs for Swagger docs`);
+  logger.info(`\x1b[31m  Visit ${baseUrl}/api-docs for Swagger docs`);
 
   // ✅ Llamar a la función startAllSessions solo si está habilitado
   if (serverOptions.startAllSession) {
-    logger.info('🟡 Starting all sessions...');
+    logger.info(' Starting all sessions...');
     startAllSessions(serverOptions, logger);
   }
 });
