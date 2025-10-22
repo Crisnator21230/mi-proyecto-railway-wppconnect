@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { NextFunction, Request, Response } from 'express';
 
 import { clientsArray } from '../util/sessionUtil.js';

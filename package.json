@@ -37,7 +37,7 @@
     "@wppconnect-team/wppconnect": "^1.37.5",
     "archiver": "^7.0.1",
     "axios": "^1.12.2",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "buffer-to-stream": "1.0.0",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import bcrypt from 'bcrypt';
+
+import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 
 const saltRounds = 10;
@@ -32,34 +33,42 @@ export async function encryptSession(
      }
      #swagger.autoHeaders = false
    */
-  const { session, secretkey } = req.params;
-  const { authorization: token } = req.headers;
-  const secureTokenEnv = req.serverOptions.secretKey;
 
-  let tokenDecrypt = '';
+  try {
+    const { session, secretkey } = req.params;
+    const { authorization: token } = req.headers;
+    const secureTokenEnv = req.serverOptions.secretKey;
 
-  if (secretkey === undefined) {
-    tokenDecrypt = (token as string).split(' ')[0];
-  } else {
-    tokenDecrypt = secretkey;
-  }
+    let tokenDecrypt = '';
 
-  if (tokenDecrypt !== secureTokenEnv) {
-    return res.status(400).json({
-      response: false,
-      message: 'The SECRET_KEY is incorrect',
-    });
-  }
+    if (secretkey === undefined) {
+      tokenDecrypt = (token as string)?.split(' ')[0];
+    } else {
+      tokenDecrypt = secretkey;
+    }
 
-  bcrypt.hash(session + secureTokenEnv, saltRounds, function (err, hash) {
-    if (err) return res.status(500).json(err);
+    if (tokenDecrypt !== secureTokenEnv) {
+      return res.status(400).json({
+        response: false,
+        message: 'The SECRET_KEY is incorrect',
+      });
+    }
 
+    // ✅ Usamos await para evitar callback y eliminar el error de 'hash' undefined
+    const hash = await bcrypt.hash(session + secureTokenEnv, saltRounds);
     const hashFormat = hash.replace(/\//g, '_').replace(/\+/g, '-');
+
     return res.status(201).json({
       status: 'success',
-      session: session,
+      session,
       token: hashFormat,
       full: `${session}:${hashFormat}`,
     });
-  });
+  } catch (error) {
+    return res.status(500).json({
+      response: false,
+      message: 'Error generating session token',
+      error: (error as Error).message,
+    });
+  }
 }
