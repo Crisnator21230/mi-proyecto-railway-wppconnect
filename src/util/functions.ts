@@ -238,51 +238,57 @@ export async function autoDownload(client: any, req: any, message: any) {
   }
 }
 
+
 export async function startAllSessions(config: any, logger: any) {
   try {
-    const port = config.port || Number(process.env.PORT) || 3000;
-
-    // Railway variables 
-    const railwayPublic = process.env.RAILWAY_PUBLIC_DOMAIN;
-    const railwayPrivate = process.env.RAILWAY_PRIVATE_DOMAIN;
-
-    // Decide si estamos en Railway por la presencia de esas vars
-    const isRailway = !!(railwayPublic || railwayPrivate);
-
-    // Host a usar:
-    // - en Railway preferimos RAILWAY_PUBLIC_DOMAIN, sino RAILWAY_PRIVATE_DOMAIN
-    // - en local usamos 127.0.0.1:PORT
-    const host = isRailway
-      ? (railwayPublic || railwayPrivate) as string
-      : `127.0.0.1:${port}`;
-
-    // Protocol: si usamos host local -> http, si es Railway -> https
-    const protocol = isRailway ? 'https' : 'http';
-
-    // Secret key: prefer config, sino variable de entorno
+    const port = config?.port || Number(process.env.PORT) || 3000;
     const secret = config?.secretKey || process.env.SECRET_KEY;
     if (!secret) {
-      logger.error('No secretKey provided in config or process.env.SECRET_KEY');
+      logger.error('No secretKey provided in config or process.env.SECRET_KEY — cannot start sessions');
       return;
     }
 
-    const url = `${protocol}://${host}/api/${encodeURIComponent(
-      secret
-    )}/start-all`;
+    
+    // START_ALL_USE_PUBLIC=true en variables.
+    const forcePublic = !!process.env.START_ALL_USE_PUBLIC;
 
-    logger.info(`Starting all sessions using URL: ${url}`);
+    // Si forcePublic true → intenta RAILWAY_PUBLIC_DOMAIN o RAILWAY_PRIVATE_DOMAIN
+    if (forcePublic) {
+      const railwayPublic = process.env.RAILWAY_PUBLIC_DOMAIN;
+      const railwayPrivate = process.env.RAILWAY_PRIVATE_DOMAIN;
+      const host = railwayPublic || railwayPrivate;
+      if (!host) {
+        logger.warn('START_ALL_USE_PUBLIC=true pero no existe RAILWAY_PUBLIC_DOMAIN ni RAILWAY_PRIVATE_DOMAIN; usando localhost');
+      } else {
+        const protocol = host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https';
+        const url = `${protocol}://${host}/api/${encodeURIComponent(secret)}/start-all`;
+        logger.info(`Starting all sessions using PUBLIC URL: ${url}`);
+        try {
+          const r = await axios.post(url, undefined, { timeout: 10000 });
+          logger.info(`Sessions started (public) status: ${r.status}`);
+          return;
+        } catch (err: any) {
+          logger.error(`Public start-all failed: ${err?.message || err} ${err?.response ? '- status: '+err.response.status : ''}`);
+          // fallthrough -> intenta local
+        }
+      }
+    }
 
-    const response = await axios.post(url, undefined, { timeout: 10000 });
-    logger.info(`Sessions started successfully: ${response.status}`);
+    // Default: llamar a la ruta LOCAL (evita reverse-proxy issues)
+    const localUrl = `http://127.0.0.1:${port}/api/${encodeURIComponent(secret)}/start-all`;
+    logger.info(`Starting all sessions using LOCAL URL: ${localUrl}`);
+
+    const resp = await axios.post(localUrl, undefined, { timeout: 10000 });
+    logger.info(`Sessions started successfully (local) - status: ${resp.status}`);
   } catch (e: any) {
-    // Mostrar mensaje legible y, si existe, cuerpo/stack
     logger.error(
       `Error starting sessions: ${e?.message || e} ${
-        e?.response ? `- status: ${e.response.status}` : ''
+        e?.response ? `- status: ${e.response.status} - body: ${JSON.stringify(e.response.data)}` : ''
       }`
     );
   }
 }
+
 
 
 
