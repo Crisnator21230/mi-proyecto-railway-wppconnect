@@ -1,4 +1,4 @@
-import { ServerOptions } from '../types/ServerOptions';
+import { ServerOptions } from '../types/ServerOptions.js';
 
 export default {
   secretKey: process.env.SECRET_KEY,
