@@ -19,7 +19,7 @@ import { Request } from 'express';
 import fileSystem from 'fs';
 import unzipper from 'unzipper';
 
-import { logger } from '..';
+import { logger } from '../index.js';
 import config from '../config/config.js';
 import { startAllSessions } from './functions.js';
 import getAllTokens from './getAllTokens.js';

@@ -19,7 +19,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import sanitize from 'sanitize-filename';
 
-import { logger } from '../../..';
+import { logger } from '../../../index.js';
 import { SessionToken, TokenStore } from '../types';
 
 export interface FileTokenStoreOptions {
