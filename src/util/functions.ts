@@ -240,35 +240,28 @@ export async function autoDownload(client: any, req: any, message: any) {
 
 export async function startAllSessions(config: any, logger: any) {
   try {
-    // 1️⃣ Detectar dominio público (Railway u otros)
+    // Detectar si está en Railway
     const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;
-
-    // 2️⃣ Detectar protocolo: HTTPS para dominio público, HTTP local
     const isLocal =
-      config.host?.includes('localhost') ||
-      config.host?.includes('0.0.0.0') ||
-      !publicDomain;
+      !publicDomain &&
+      (config.host.includes('localhost') || config.host.includes('0.0.0.0'));
 
+    // Seleccionar protocolo y host adecuados
     const protocol = isLocal ? 'http' : 'https';
+    const host = isLocal
+      ? `localhost:${config.port}`
+      : publicDomain || `${config.host}:${config.port}`;
 
-    // 3️⃣ Construir URL base dependiendo del entorno
-    const baseUrl = publicDomain
-      ? `${protocol}://${publicDomain}`
-      : `${protocol}://${config.host}:${config.port}`;
-
-    // 4️⃣ URL final para iniciar sesiones
-    const url = `${baseUrl}/api/${config.secretKey}/start-all`;
+    const url = `${protocol}://${host}/api/${config.secretKey}/start-all`;
 
     logger.info(`Starting all sessions using URL: ${url}`);
 
-    // 5️⃣ Llamada al endpoint
-    const response = await axios.post(url);
-
-    logger.info(`Sessions started successfully. Response: ${response.status} ${response.statusText}`);
+    await axios.post(url);
   } catch (e: any) {
-    logger.error(`Error starting sessions: ${e.message || e}`);
+    logger.error(`Error starting sessions: ${e.message}`);
   }
 }
+
 
 
 export async function startHelper(client: any, req: any) {
