@@ -99,52 +99,68 @@ export async function download(message: any, client: any, logger: any) {
   }
 }
 
-export async function startAllSessions(
-  req: Request,
-  res: Response
-): Promise<any> {
+export async function startAllSessions(req: Request, res: Response): Promise<any> {
   /**
    * #swagger.tags = ["Auth"]
-     #swagger.autoBody=false
-     #swagger.operationId = 'startAllSessions'
-     #swagger.security = [{
-            "bearerAuth": []
-     }]
-     #swagger.parameters["session"] = {
-      schema: 'NERDWHATS_AMERICA'
-     }
-     #swagger.parameters["secretkey"] = {
-      schema: 'THISISMYSECURECODE'
-     }
+   * #swagger.autoBody=false
+   * #swagger.operationId = 'startAllSessions'
+   * #swagger.security = [{"bearerAuth": []}]
+   * #swagger.parameters["session"] = { schema: 'NERDWHATS_AMERICA' }
+   * #swagger.parameters["secretkey"] = { schema: 'THISISMYSECURECODE' }
    */
-  const { secretkey } = req.params;
-  const { authorization: token } = req.headers;
 
-  let tokenDecrypt = '';
+  try {
+    const { secretkey } = req.params;
+    const { authorization: token } = req.headers;
 
-  if (secretkey === undefined) {
-    tokenDecrypt = (token as any).split(' ')[0];
-  } else {
-    tokenDecrypt = secretkey;
-  }
+    // Determinar el token a usar
+    const tokenDecrypt = secretkey ?? (token?.split(' ')[0] ?? '');
 
-  const allSessions = await getAllTokens(req);
+    // Validar que el token exista
+    if (!tokenDecrypt) {
+      return res.status(400).json({
+        response: 'error',
+        message: 'Missing token or secret key',
+      });
+    }
 
-  if (tokenDecrypt !== req.serverOptions.secretKey) {
-    res.status(400).json({
+    // Validar contra el token configurado en el servidor
+    const expectedToken = req.serverOptions?.secretKey || process.env.SECRET_KEY;
+    if (tokenDecrypt !== expectedToken) {
+      return res.status(403).json({
+        response: 'error',
+        message: 'The token is incorrect',
+      });
+    }
+
+    // Obtener todas las sesiones
+    const allSessions = await getAllTokens(req);
+
+    // Iniciar cada sesión
+    const results = [];
+    for (const session of allSessions) {
+      try {
+        const util = new CreateSessionUtil();
+        await util.opendata(req, session);
+        results.push({ session, status: 'started' });
+      } catch (err: any) {
+        results.push({ session, status: 'error', error: err.message });
+      }
+    }
+
+    return res.status(201).json({
+      status: 'success',
+      message: 'Starting all sessions',
+      results,
+    });
+  } catch (error: any) {
+    console.error('startAllSessions error:', error);
+    return res.status(500).json({
       response: 'error',
-      message: 'The token is incorrect',
+      message: 'Internal server error',
+      details: error.message,
     });
   }
-
-  allSessions.map(async (session: string) => {
-    const util = new CreateSessionUtil();
-    await util.opendata(req, session);
-  });
-
-  return await res
-    .status(201)
-    .json({ status: 'success', message: 'Starting all sessions' });
 }
 
 export async function showAllSessions(
