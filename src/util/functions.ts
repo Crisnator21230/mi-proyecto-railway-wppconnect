@@ -239,7 +239,20 @@ export async function autoDownload(client: any, req: any, message: any) {
   }
 }
 
-
+export async function startAllSessions(config: any, logger: any) {
+  const secretKey =  process.env.SECRET_KEY;
+  const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN
+  const port = process.env.PORT || config.port || 3000;
+  const encodedSecret = encodeURIComponent(secretKey);
+  try {
+    await api.post(
+      `${publicDomain}:${port}/api/${encodedSecret}/start-all`
+    );
+  } catch (e) {
+    logger.error(e);
+  }
+}
+/*
 export async function startAllSessions(serverOptions: any, logger: any) {
   try {
     const port = serverOptions?.port || process.env.PORT || 3000;
@@ -264,7 +277,6 @@ export async function startAllSessions(serverOptions: any, logger: any) {
           timeout: 7000,
           validateStatus: () => true
         });
-
         if (res.status >= 200 && res.status < 300) {
           logger.info(`startAllSessions: ${label} succeeded (${res.status})`);
           return true;
@@ -280,9 +292,9 @@ export async function startAllSessions(serverOptions: any, logger: any) {
 
     // Intentar local
     const localSuccess = await tryPost(localUrl, 'local');
-
+    
     // Si local falla, intentar pública
-    if (!localSuccess && publicUrl) {
+    if (true/*!localSuccess && publicUrl) {
       const publicSuccess = await tryPost(publicUrl, 'public');
       if (!publicSuccess) {
         logger.error('startAllSessions: failed to start sessions via both local and public endpoints.');
@@ -295,7 +307,7 @@ export async function startAllSessions(serverOptions: any, logger: any) {
     logger.error(`startAllSessions: unexpected error: ${e?.message || e}`);
   }
 }
-
+  */
 
 
 export async function startHelper(client: any, req: any) {
