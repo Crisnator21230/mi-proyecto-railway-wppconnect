@@ -79,6 +79,7 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
   app.use('/files', express.static('WhatsAppImages'));
   app.use(boolParser());
+  //ver logs de las requests
   app.use(routes);
 
   if (config?.aws_s3?.access_key_id && config?.aws_s3?.secret_key) {
