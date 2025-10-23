@@ -21,13 +21,14 @@ import {
 } from '@aws-sdk/client-s3';
 import api from 'axios';
 import Crypto from 'crypto';
-import { Request } from 'express';
+import { Request,Response } from 'express';
 import fs from 'fs';
 import mimetypes from 'mime-types';
 import os from 'os';
 import path from 'path';
 import { promisify } from 'util';
 import axios from 'axios';
+
 
 import config from '../config/config.js';
 import { convert } from '../mapper/index.js';
@@ -242,56 +243,54 @@ export async function autoDownload(client: any, req: any, message: any) {
 export async function startAllSessions(serverOptions: any, logger: any) {
   try {
     const port = serverOptions?.port || process.env.PORT || 3000;
-    const secret = serverOptions?.secretKey || process.env.SECRET_KEY || '';
-    const encodedSecret = encodeURIComponent(secret);
+    const secretKey = serverOptions?.secretKey || process.env.SECRET_KEY || '';
 
-    // URL local (intento preferente desde dentro del contenedor)
-    const localUrl = `http://127.0.0.1:${port}/api/${encodedSecret}/start-all`;
+    if (!secretKey) {
+      logger.error('startAllSessions: SECRET_KEY is missing. Cannot proceed.');
+      return;
+    }
 
-    // URL pública (Railway) — solo se usa si existe la variable de entorno
-    const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.PUBLIC_URL || null;
+    const encodedSecret = encodeURIComponent(secretKey);
     logger.info(`Using secret key: ${encodedSecret}`);
+
+    const localUrl = `http://127.0.0.1:${port}/api/${encodedSecret}/start-all`;
+    const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.PUBLIC_URL || null;
     const publicUrl = publicDomain ? `https://${publicDomain}/api/${encodedSecret}/start-all` : null;
 
-    const tryPost = async (url: string) => {
-      logger.info(`Trying POST ${url}`);
-      // cuerpo vacío en la petición porque el endpoint original no necesita cuerpo
-      const res = await axios.post(url, {}, { timeout: 7000, validateStatus: () => true });
-      return res;
+    const tryPost = async (url: string, label: string) => {
+      logger.info(`Trying POST to ${label} URL: ${url}`);
+      try {
+        const res = await axios.post(url, {}, {
+          timeout: 7000,
+          validateStatus: () => true
+        });
+
+        if (res.status >= 200 && res.status < 300) {
+          logger.info(`startAllSessions: ${label} succeeded (${res.status})`);
+          return true;
+        } else {
+          logger.warn(`startAllSessions: ${label} responded ${res.status} - body: ${String(res.data).slice(0, 200)}`);
+          return false;
+        }
+      } catch (err: any) {
+        logger.warn(`startAllSessions: ${label} request error: ${err?.message || err}`);
+        return false;
+      }
     };
 
-    // 1) Intentar local
-    try {
-      const r = await tryPost(localUrl);
-      if (r.status >= 200 && r.status < 300) {
-        logger.info(`startAllSessions: local succeeded (${r.status})`);
-        return;
-      } else {
-        logger.warn(`startAllSessions: local responded ${r.status} - body: ${String(r.data).slice(0,200)}`);
+    // Intentar local
+    const localSuccess = await tryPost(localUrl, 'local');
+
+    // Si local falla, intentar pública
+    if (!localSuccess && publicUrl) {
+      const publicSuccess = await tryPost(publicUrl, 'public');
+      if (!publicSuccess) {
+        logger.error('startAllSessions: failed to start sessions via both local and public endpoints.');
       }
-    } catch (errLocal: any) {
-      logger.warn(`startAllSessions: local request error: ${errLocal?.message || errLocal}`);
+    } else if (!publicUrl) {
+      logger.info('startAllSessions: no public domain configured, skipped public fallback.');
     }
 
-    // 2) Fallback a pública (si existe)
-    if (publicUrl) {
-      try {
-        const r2 = await tryPost(publicUrl);
-        if (r2.status >= 200 && r2.status < 300) {
-          logger.info(`startAllSessions: public succeeded (${r2.status})`);
-          return;
-        } else {
-          logger.error(`startAllSessions: public responded ${r2.status} - body: ${String(r2.data).slice(0,500)}`);
-        }
-      } catch (errPub: any) {
-        logger.error(`startAllSessions: public request error: ${errPub?.message || errPub}`);
-      }
-    } else {
-      logger.info('startAllSessions: no public domain configured (RAILWAY_PUBLIC_DOMAIN not set), skipped public fallback');
-    }
-
-    // Si llegamos aquí, todo falló
-    logger.error('startAllSessions: failed to start sessions via both local and public endpoints.');
   } catch (e: any) {
     logger.error(`startAllSessions: unexpected error: ${e?.message || e}`);
   }
