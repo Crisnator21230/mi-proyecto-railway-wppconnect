@@ -250,6 +250,7 @@ export async function startAllSessions(serverOptions: any, logger: any) {
 
     // URL pública (Railway) — solo se usa si existe la variable de entorno
     const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.PUBLIC_URL || null;
+    logger.info(`Using secret key: ${encodedSecret}`);
     const publicUrl = publicDomain ? `https://${publicDomain}/api/${encodedSecret}/start-all` : null;
 
     const tryPost = async (url: string) => {
