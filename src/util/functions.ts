@@ -298,8 +298,6 @@ export async function startAllSessions(serverOptions: any, logger: any) {
 
 
 
-
-
 export async function startHelper(client: any, req: any) {
   if (req.serverOptions.webhook.allUnreadOnStart) await sendUnread(client, req);
 
