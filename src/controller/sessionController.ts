@@ -110,11 +110,15 @@ export async function startAllSessions(req: Request, res: Response): Promise<any
    */
 
   try {
-    const  secretkey =  process.env.SECRET_KEY;
+    const { secretkey } = req.params;
     const { authorization: token } = req.headers;
 
     // Determinar el token a usar
     const tokenDecrypt = secretkey ?? (token?.split(' ')[0] ?? '');
+
+    if (!secretkey) {
+      return res.status(400).json({ error: 'Missing secret key in URL' });
+    }
 
     // Validar que el token exista
     if (!tokenDecrypt) {
