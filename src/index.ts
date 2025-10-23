@@ -48,7 +48,10 @@ import {
 } from './util/functions.js';
 import { createLogger } from './util/logger.js';
 
-//require('dotenv').config();
+
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 export const logger = createLogger(config.log);
 
