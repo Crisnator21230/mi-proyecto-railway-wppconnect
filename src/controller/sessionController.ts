@@ -125,7 +125,7 @@ export async function startAllSessions(req: Request, res: Response): Promise<any
     }
 
     // Validar contra el token configurado en el servidor
-    const expectedToken = req.serverOptions?.secretKey || process.env.SECRET_KEY;
+    const expectedToken =process.env.SECRET_KEY; //req.serverOptions?.secretKey || process.env.SECRET_KEY;
     if (tokenDecrypt !== expectedToken) {
       return res.status(403).json({
         response: 'error',
