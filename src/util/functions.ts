@@ -254,47 +254,97 @@ export async function startAllSessions(config: any, logger: any) {
 }
 */
 
-export async function startAllSessions(serverOptions: any, logger: any) {
+
+/**
+ * startAllSessions robusto: prueba local primero (si procede) y luego la URL pública de Railway.
+ * - config: objeto serverOptions (de index/initServer)
+ * - logger: instancia Winston
+ */
+export async function startAllSessions(config: any, logger: any) {
   try {
-    const secretKey = serverOptions?.secretKey || process.env.SECRET_KEY || '';
+    const port = config.port || process.env.PORT || 3000;
 
-    if (!secretKey) {
-      logger.error('startAllSessions: SECRET_KEY is missing. Cannot proceed.');
-      return;
-    }
+    // Detectar entorno Railway / producción:
+    const publicDomain =
+      process.env.RAILWAY_PUBLIC_DOMAIN ||
+      process.env.RAILWAY_STATIC_URL ||
+      process.env.RAILWAY_PUBLIC_URL ||
+      process.env.PUBLIC_URL ||
+      '';
 
-    const encodedSecret = encodeURIComponent(secretKey);
-    logger.info(`Using secret key: ${encodedSecret}`);
+    const isProduction = !!publicDomain || !!process.env.RAILWAY_ENVIRONMENT;
 
-    const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.PUBLIC_URL || null;
-    if (!publicDomain) {
-      logger.error('startAllSessions: No public domain configured (RAILWAY_PUBLIC_DOMAIN missing).');
-      return;
-    }
+    // host público si existe (NO incluimos puerto en producción)
+    const publicBase = publicDomain ? `${publicDomain}` : '';
 
-    const publicUrl = `https://${publicDomain}/api/${encodedSecret}/start-all`;
+    // host local si hace falta (solo para intentarlo localmente)
+    const localHost = '127.0.0.1';
+    const localBase = `${localHost}:${port}`;
 
-    logger.info(`Trying POST to public URL: ${publicUrl}`);
+    // codifica secretKey (evita problemas con '!' u otros caracteres)
+    const encodedSecret = encodeURIComponent(config.secretKey || '');
 
+    // Construcción de URLs probadas (local primero, luego pública)
+    const localUrl = `http://${localBase}/api/${encodedSecret}/start-all`;
+    const publicUrl = isProduction
+      ? `https://${publicBase}/api/${encodedSecret}/start-all`
+      : `http://${localBase}/api/${encodedSecret}/start-all`;
+
+    // Timeout razonable para evitar colgar
+    const axiosOpts = { timeout: 5000 };
+
+    logger.info(
+      `Trying POST to local URL: ${localUrl} (will try public after if needed)`
+    );
+
+    // Intentar local (solo si localHost tiene sentido)
     try {
-      const res = await axios.post(publicUrl, {}, {
-        timeout: 7000,
-        validateStatus: () => true
-      });
-
-      if (res.status >= 200 && res.status < 300) {
-        logger.info(`startAllSessions: public succeeded (${res.status})`);
+      const localResp = await axios.post(localUrl, {}, axiosOpts);
+      logger.info(
+        `startAllSessions: local responded ${localResp.status} - ${localResp.statusText}`
+      );
+      return;
+    } catch (localErr: any) {
+      // Loguea cuerpo/respuesta si está disponible
+      if (localErr.response) {
+        logger.warn(
+          `startAllSessions: local responded ${localErr.response.status} - body: ${String(
+            localErr.response.data
+          )}`
+        );
       } else {
-        logger.warn(`startAllSessions: public responded ${res.status} - body: ${String(res.data).slice(0, 200)}`);
+        logger.warn(`startAllSessions: local request failed: ${localErr.message}`);
       }
-    } catch (err: any) {
-      logger.error(`startAllSessions: public request error: ${err?.message || err}`);
     }
 
+    // Intentar la URL pública (si hay dominio público)
+    logger.info(`Trying POST to public URL: ${publicUrl}`);
+    try {
+      const publicResp = await axios.post(publicUrl, {}, axiosOpts);
+      logger.info(
+        `startAllSessions: public responded ${publicResp.status} - ${publicResp.statusText}`
+      );
+      return;
+    } catch (pubErr: any) {
+      if (pubErr.response) {
+        logger.error(
+          `startAllSessions: public responded ${pubErr.response.status} - body: ${String(
+            pubErr.response.data
+          )}`
+        );
+      } else {
+        logger.error(`startAllSessions: public request failed: ${pubErr.message}`);
+      }
+    }
+
+    logger.error(
+      'startAllSessions: failed to start sessions via both local and public endpoints.'
+    );
   } catch (e: any) {
-    logger.error(`startAllSessions: unexpected error: ${e?.message || e}`);
+    logger.error(`startAllSessions: unexpected error: ${e.message}`);
   }
 }
+
 
 
 export async function startHelper(client: any, req: any) {
