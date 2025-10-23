@@ -240,7 +240,7 @@ export async function autoDownload(client: any, req: any, message: any) {
 }
 
 export async function startAllSessions(config: any, logger: any) {
-  const secretKey =  process.env.SECRET_KEY;
+  const secretKey =  process.env.SECRET_KEY || '';
   const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN
   const port = process.env.PORT || config.port || 3000;
   const encodedSecret = encodeURIComponent(secretKey);
