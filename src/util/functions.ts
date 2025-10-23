@@ -238,7 +238,7 @@ export async function autoDownload(client: any, req: any, message: any) {
     req.logger.error(e);
   }
 }
-
+/*
 export async function startAllSessions(config: any, logger: any) {
   const secretKey =  process.env.SECRET_KEY || '';
   const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN
@@ -252,10 +252,10 @@ export async function startAllSessions(config: any, logger: any) {
     logger.error(e);
   }
 }
-/*
+*/
+
 export async function startAllSessions(serverOptions: any, logger: any) {
   try {
-    const port = serverOptions?.port || process.env.PORT || 3000;
     const secretKey = serverOptions?.secretKey || process.env.SECRET_KEY || '';
 
     if (!secretKey) {
@@ -266,48 +266,35 @@ export async function startAllSessions(serverOptions: any, logger: any) {
     const encodedSecret = encodeURIComponent(secretKey);
     logger.info(`Using secret key: ${encodedSecret}`);
 
-    const localUrl = `http://127.0.0.1:${port}/api/${encodedSecret}/start-all`;
     const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.PUBLIC_URL || null;
-    const publicUrl = publicDomain ? `https://${publicDomain}/api/${encodedSecret}/start-all` : null;
+    if (!publicDomain) {
+      logger.error('startAllSessions: No public domain configured (RAILWAY_PUBLIC_DOMAIN missing).');
+      return;
+    }
 
-    const tryPost = async (url: string, label: string) => {
-      logger.info(`Trying POST to ${label} URL: ${url}`);
-      try {
-        const res = await axios.post(url, {}, {
-          timeout: 7000,
-          validateStatus: () => true
-        });
-        if (res.status >= 200 && res.status < 300) {
-          logger.info(`startAllSessions: ${label} succeeded (${res.status})`);
-          return true;
-        } else {
-          logger.warn(`startAllSessions: ${label} responded ${res.status} - body: ${String(res.data).slice(0, 200)}`);
-          return false;
-        }
-      } catch (err: any) {
-        logger.warn(`startAllSessions: ${label} request error: ${err?.message || err}`);
-        return false;
-      }
-    };
+    const publicUrl = `https://${publicDomain}/api/${encodedSecret}/start-all`;
 
-    // Intentar local
-    const localSuccess = await tryPost(localUrl, 'local');
-    
-    // Si local falla, intentar pública
-    if (true/*!localSuccess && publicUrl) {
-      const publicSuccess = await tryPost(publicUrl, 'public');
-      if (!publicSuccess) {
-        logger.error('startAllSessions: failed to start sessions via both local and public endpoints.');
+    logger.info(`Trying POST to public URL: ${publicUrl}`);
+
+    try {
+      const res = await axios.post(publicUrl, {}, {
+        timeout: 7000,
+        validateStatus: () => true
+      });
+
+      if (res.status >= 200 && res.status < 300) {
+        logger.info(`startAllSessions: public succeeded (${res.status})`);
+      } else {
+        logger.warn(`startAllSessions: public responded ${res.status} - body: ${String(res.data).slice(0, 200)}`);
       }
-    } else if (!publicUrl) {
-      logger.info('startAllSessions: no public domain configured, skipped public fallback.');
+    } catch (err: any) {
+      logger.error(`startAllSessions: public request error: ${err?.message || err}`);
     }
 
   } catch (e: any) {
     logger.error(`startAllSessions: unexpected error: ${e?.message || e}`);
   }
 }
-  */
 
 
 export async function startHelper(client: any, req: any) {

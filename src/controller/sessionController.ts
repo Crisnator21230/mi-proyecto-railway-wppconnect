@@ -110,7 +110,7 @@ export async function startAllSessions(req: Request, res: Response): Promise<any
    */
 
   try {
-    const { secretkey } = req.params;
+    const  secretkey =  process.env.SECRET_KEY;
     const { authorization: token } = req.headers;
 
     // Determinar el token a usar
