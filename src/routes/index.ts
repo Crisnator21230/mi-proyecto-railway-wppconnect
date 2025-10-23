@@ -43,9 +43,13 @@ import { dirname, resolve } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const swaggerDocument = JSON.parse(
-  readFileSync(resolve(__dirname, '../swagger.json'), 'utf8')
-);
+let swaggerDocument: any;
+try {
+  swaggerDocument = JSON.parse(readFileSync(resolve(__dirname, '../swagger.json'), 'utf8'));
+} catch (err) {
+  console.error('Error loading swagger.json:', err);
+  swaggerDocument = {}; // fallback vacío
+}
 
 
 const upload = multer(uploadConfig as any) as any;
