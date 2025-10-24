@@ -260,6 +260,7 @@ export async function startAllSessions(config: any, logger: any) {
  * - config: objeto serverOptions (de index/initServer)
  * - logger: instancia Winston
  */
+
 export async function startAllSessions(config: any, logger: any) {
   try {
     const port = config.port || process.env.PORT || 3000;
@@ -274,30 +275,52 @@ export async function startAllSessions(config: any, logger: any) {
 
     const isProduction = !!publicDomain || !!process.env.RAILWAY_ENVIRONMENT;
 
-    // host público si existe (NO incluimos puerto en producción)
+    // host público (sin puerto, Railway ya redirige correctamente)
     const publicBase = publicDomain ? `${publicDomain}` : '';
 
-    // host local si hace falta (solo para intentarlo localmente)
+    // host local (solo para fallback)
     const localHost = '127.0.0.1';
     const localBase = `${localHost}:${port}`;
 
-    // codifica secretKey (evita problemas con '!' u otros caracteres)
+    // codifica secretKey (evita errores por caracteres especiales)
     const encodedSecret = encodeURIComponent(config.secretKey || '');
 
-    // Construcción de URLs probadas (local primero, luego pública)
-    const localUrl = `http://${localBase}/api/${encodedSecret}/start-all`;
+    // Construcción de URLs: ahora pública primero, luego local
     const publicUrl = isProduction
       ? `https://${publicBase}/api/${encodedSecret}/start-all`
       : `http://${localBase}/api/${encodedSecret}/start-all`;
 
-    // Timeout razonable para evitar colgar
+    const localUrl = `http://${localBase}/api/${encodedSecret}/start-all`;
+
+    // Configuración de timeout razonable
     const axiosOpts = { timeout: 5000 };
 
+    // === Intentar primero con la URL pública ===
     logger.info(
-      `Trying POST to local URL: ${localUrl} (will try public after if needed)`
+      `Trying POST to PUBLIC URL: ${publicUrl} (will try local after if needed)`
     );
 
-    // Intentar local (solo si localHost tiene sentido)
+    try {
+      const publicResp = await axios.post(publicUrl, {}, axiosOpts);
+      logger.info(
+        `startAllSessions: public responded ${publicResp.status} - ${publicResp.statusText}`
+      );
+      return; // Éxito → no seguimos al intento local
+    } catch (pubErr: any) {
+      if (pubErr.response) {
+        logger.warn(
+          `startAllSessions: public responded ${pubErr.response.status} - body: ${String(
+            pubErr.response.data
+          )}`
+        );
+      } else {
+        logger.warn(`startAllSessions: public request failed: ${pubErr.message}`);
+      }
+    }
+
+    // === Si falla, intentar con la URL local ===
+    logger.info(`Trying POST to LOCAL URL: ${localUrl}`);
+
     try {
       const localResp = await axios.post(localUrl, {}, axiosOpts);
       logger.info(
@@ -305,40 +328,19 @@ export async function startAllSessions(config: any, logger: any) {
       );
       return;
     } catch (localErr: any) {
-      // Loguea cuerpo/respuesta si está disponible
       if (localErr.response) {
-        logger.warn(
+        logger.error(
           `startAllSessions: local responded ${localErr.response.status} - body: ${String(
             localErr.response.data
           )}`
         );
       } else {
-        logger.warn(`startAllSessions: local request failed: ${localErr.message}`);
-      }
-    }
-
-    // Intentar la URL pública (si hay dominio público)
-    logger.info(`Trying POST to public URL: ${publicUrl}`);
-    try {
-      const publicResp = await axios.post(publicUrl, {}, axiosOpts);
-      logger.info(
-        `startAllSessions: public responded ${publicResp.status} - ${publicResp.statusText}`
-      );
-      return;
-    } catch (pubErr: any) {
-      if (pubErr.response) {
-        logger.error(
-          `startAllSessions: public responded ${pubErr.response.status} - body: ${String(
-            pubErr.response.data
-          )}`
-        );
-      } else {
-        logger.error(`startAllSessions: public request failed: ${pubErr.message}`);
+        logger.error(`startAllSessions: local request failed: ${localErr.message}`);
       }
     }
 
     logger.error(
-      'startAllSessions: failed to start sessions via both local and public endpoints.'
+      'startAllSessions: failed to start sessions via both public and local endpoints.'
     );
   } catch (e: any) {
     logger.error(`startAllSessions: unexpected error: ${e.message}`);
