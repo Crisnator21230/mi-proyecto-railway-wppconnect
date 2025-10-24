@@ -72,7 +72,7 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
   setMaxListners(serverOptions as ServerOptions);
 
   const app = express();
-  const PORT = Number(process.env.PORT) || serverOptions.port || 8080;
+  const port = Number(process.env.PORT) || Number(serverOptions.port) || 8080;
 
   app.use(cors());
   app.use(express.json({ limit: '50mb' }));
@@ -135,8 +135,8 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
     });
   });
 
-http.listen({ PORT, host: '0.0.0.0' }, () => {
-  logger.info(` Server is running on port: ${PORT}`);
+http.listen({ port, host: '0.0.0.0' }, () => {
+  logger.info(` Server is running on port: ${port}`);
   logger.info(`WPPConnect-Server version: ${version}`);
 
   // Determinar baseUrl público/local Igual que antes
@@ -156,7 +156,7 @@ http.listen({ PORT, host: '0.0.0.0' }, () => {
   const protocol = isLocal ? 'http' : 'https';
   const baseUrl = publicDomain
     ? `${protocol}://${publicDomain}`
-    : `${protocol}://${serverOptions.host || '127.0.0.1'}:${PORT}`;
+    : `${protocol}://${serverOptions.host || '127.0.0.1'}:${port}`;
 
   logger.info(`\x1b[31m Visit ${baseUrl}/api-docs for Swagger docs`);
 
@@ -167,7 +167,7 @@ http.listen({ PORT, host: '0.0.0.0' }, () => {
       // espera un poco para que todo cargue
       await new Promise((r) => setTimeout(r, 1500));
       const axios = (await import('axios')).default;
-      const internalUrl = `http://127.0.0.1:${PORT}/api-docs`;
+      const internalUrl = `http://127.0.0.1:${port}/api-docs`;
       logger.info(`Trying internal GET ${internalUrl}`);
       const resp = await axios.get(internalUrl, { timeout: 5000 });
       logger.info(`Internal GET ${internalUrl} OK -> ${resp.status}`);
