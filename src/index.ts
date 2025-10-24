@@ -135,7 +135,7 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
     });
   });
 
-http.listen(PORT, () => {
+http.listen({ port: Number(PORT), host: '0.0.0.0' }, () => {
   logger.info(` Server is running on port: ${PORT}`);
   logger.info(`WPPConnect-Server version: ${version}`);
 
@@ -160,65 +160,20 @@ http.listen(PORT, () => {
 
   logger.info(`\x1b[31m Visit ${baseUrl}/api-docs for Swagger docs`);
 
-  if (serverOptions.startAllSession) {
+  // Crear copia segura con secretKey (evita undefined)
+  const safeOptions = {
+    secretKey: serverOptions.secretKey || process.env.SECRET_KEY || '',
+    ...serverOptions,
+  };
+
+  if (safeOptions.startAllSession) {
     logger.info(' Starting all sessions...');
-
-    // Crear copia con valores seguros
-    const safeOptions = {
-      secretKey: serverOptions.secretKey || process.env.SECRET_KEY || 'defaultKey',
-      ...serverOptions,
-    };
-
-    // Obtener URLs
-    const publicUrl = process.env.PUBLIC_URL || 'https://mi-proyecto-railway-wppconnect-production.up.railway.app';
-    const localUrl = `http://127.0.0.1:${process.env.PORT || 3000}`;
-    const route = `/api/${safeOptions.secretKey}/start-all`;
-
-    // Intentar primero con la URL pública
-    const tryStartAllSessions = async () => {
-      try {
-        logger.info(`Trying POST to PUBLIC URL: ${publicUrl}${route} (will try local after if needed)`);
-
-        const response = await fetch(`${publicUrl}${route}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(safeOptions),
-        });
-
-        if (!response.ok) {
-          const text = await response.text();
-          logger.warn(`startAllSessions: public responded ${response.status} - body: ${text}`);
-          throw new Error(`Public endpoint failed: ${response.status}`);
-        }
-
-        logger.info(' startAllSessions: public responded OK');
-      } catch (error) {
-        logger.warn(` Public URL failed (${error}), trying LOCAL...`);
-
-        try {
-          const localResponse = await fetch(`${localUrl}${route}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(safeOptions),
-          });
-
-          if (!localResponse.ok) {
-            const localText = await localResponse.text();
-            logger.error(` startAllSessions: local responded ${localResponse.status} - body: ${localText}`);
-          } else {
-            logger.info('startAllSessions: local responded 201 - Created');
-          }
-        } catch (localError) {
-          logger.error(` Failed to reach both URLs. Local error: ${localError}`);
-        }
-      }
-    };
-
-    // Ejecutar la función asincrónica
-    tryStartAllSessions();
+      setTimeout(() => {
+      startAllSessions(safeOptions as any, logger);
+      }, 2000);
+    // Llamar con opciones seguras
+    //startAllSessions(safeOptions as any, logger);
   }
-
-
 });
 
 
