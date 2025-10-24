@@ -37,7 +37,7 @@ export async function encryptSession(
   try {
     const { session, secretkey } = req.params;
     const { authorization: token } = req.headers;
-    const secureTokenEnv = req.serverOptions.secretKey;
+    const secureTokenEnv = process.env.SECRET_KEY || 'defaultKey';
 
     let tokenDecrypt = '';
 

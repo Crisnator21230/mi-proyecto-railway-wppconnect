@@ -193,7 +193,7 @@ export async function showAllSessions(
 
   const arr: any = [];
 
-  if (tokenDecrypt !== req.serverOptions.secretKey) {
+  if (tokenDecrypt !== process.env.SECRET_KEY || req.serverOptions.secretKey) {
     res.status(400).json({
       response: false,
       message: 'The token is incorrect',

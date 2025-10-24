@@ -23,7 +23,7 @@ function formatSession(session: string) {
 }
 
 const verifyToken = (req: Request, res: Response, next: NextFunction): any => {
-  const secureToken = req.serverOptions.secretKey;
+  const secureToken = process.env.SECRET_KEY || 'defaultKey';
 
   const { session } = req.params;
   const { authorization: token } = req.headers;
