@@ -72,7 +72,7 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
   setMaxListners(serverOptions as ServerOptions);
 
   const app = express();
-  const PORT = process.env.PORT || serverOptions.port;
+  const PORT = Number(process.env.PORT) || serverOptions.port || 8080;
 
   app.use(cors());
   app.use(express.json({ limit: '50mb' }));
@@ -135,11 +135,11 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
     });
   });
 
-http.listen({ port: Number(PORT), host: '0.0.0.0' }, () => {
+http.listen({ PORT, host: '0.0.0.0' }, () => {
   logger.info(` Server is running on port: ${PORT}`);
   logger.info(`WPPConnect-Server version: ${version}`);
 
-  // Detectar dominio público de Railway
+  // Determinar baseUrl público/local Igual que antes
   const publicDomain =
     process.env.RAILWAY_PUBLIC_DOMAIN ||
     process.env.RAILWAY_STATIC_URL ||
@@ -160,19 +160,36 @@ http.listen({ port: Number(PORT), host: '0.0.0.0' }, () => {
 
   logger.info(`\x1b[31m Visit ${baseUrl}/api-docs for Swagger docs`);
 
-  // Crear copia segura con secretKey (evita undefined)
-  const safeOptions = {
-    secretKey: serverOptions.secretKey || process.env.SECRET_KEY || '',
-    ...serverOptions,
-  };
+  // --- Prueba interna: curl desde dentro del contenedor (temporal) ---
+  // (Eliminar este bloque cuando termines las pruebas)
+  (async () => {
+    try {
+      // espera un poco para que todo cargue
+      await new Promise((r) => setTimeout(r, 1500));
+      const axios = (await import('axios')).default;
+      const internalUrl = `http://127.0.0.1:${PORT}/api-docs`;
+      logger.info(`Trying internal GET ${internalUrl}`);
+      const resp = await axios.get(internalUrl, { timeout: 5000 });
+      logger.info(`Internal GET ${internalUrl} OK -> ${resp.status}`);
+    } catch (err: any) {
+      // muestra mensaje claro para diagnosticar si falla internamente
+      logger.warn(`Internal GET failed: ${err?.response ? `status ${err.response.status}` : err.message}`);
+      if (err?.response && err.response.data) {
+        logger.warn(`body: ${String(err.response.data).slice(0, 200)}`);
+      }
+    }
+  })();
+  // --- fin bloque prueba interna ---
 
-  if (safeOptions.startAllSession) {
+  // Solo si está habilitado startAllSession
+  if (serverOptions.startAllSession) {
     logger.info(' Starting all sessions...');
-      setTimeout(() => {
-      startAllSessions(safeOptions as any, logger);
-      }, 2000);
-    // Llamar con opciones seguras
-    //startAllSessions(safeOptions as any, logger);
+    // Crear copia "segura" de options (evita undefined)
+    const safeOptions = {
+      secretKey: serverOptions.secretKey || process.env.SECRET_KEY || 'defaultKey',
+      ...serverOptions,
+    };
+    startAllSessions(safeOptions, logger);
   }
 });
 

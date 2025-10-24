@@ -54,7 +54,7 @@ RUN chmod +x ./start.sh
 ENV NODE_ENV=production
 ENV PORT=3000
 
-EXPOSE 3000
+EXPOSE 8080
 
 
 CMD ["./start.sh"]

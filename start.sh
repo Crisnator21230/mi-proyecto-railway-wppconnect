@@ -13,7 +13,8 @@ ls -la ./dist || true
 
 # Variables por defecto si no vienen del entorno
 : ${NODE_ENV:=production}
-: ${PORT:=3000}
+: ${PORT:=8080}
+
 export NODE_ENV PORT
 
 echo "NODE_ENV=${NODE_ENV} PORT=${PORT}"
