@@ -169,8 +169,55 @@ http.listen(PORT, () => {
       ...serverOptions,
     };
 
-    startAllSessions(safeOptions, logger);
+    // Obtener URLs
+    const publicUrl = process.env.PUBLIC_URL || 'https://mi-proyecto-railway-wppconnect-production.up.railway.app';
+    const localUrl = `http://127.0.0.1:${process.env.PORT || 3000}`;
+    const route = `/api/${safeOptions.secretKey}/start-all`;
+
+    // Intentar primero con la URL pública
+    const tryStartAllSessions = async () => {
+      try {
+        logger.info(`Trying POST to PUBLIC URL: ${publicUrl}${route} (will try local after if needed)`);
+
+        const response = await fetch(`${publicUrl}${route}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(safeOptions),
+        });
+
+        if (!response.ok) {
+          const text = await response.text();
+          logger.warn(`startAllSessions: public responded ${response.status} - body: ${text}`);
+          throw new Error(`Public endpoint failed: ${response.status}`);
+        }
+
+        logger.info(' startAllSessions: public responded OK');
+      } catch (error) {
+        logger.warn(` Public URL failed (${error}), trying LOCAL...`);
+
+        try {
+          const localResponse = await fetch(`${localUrl}${route}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(safeOptions),
+          });
+
+          if (!localResponse.ok) {
+            const localText = await localResponse.text();
+            logger.error(` startAllSessions: local responded ${localResponse.status} - body: ${localText}`);
+          } else {
+            logger.info('startAllSessions: local responded 201 - Created');
+          }
+        } catch (localError) {
+          logger.error(` Failed to reach both URLs. Local error: ${localError}`);
+        }
+      }
+    };
+
+    // Ejecutar la función asincrónica
+    tryStartAllSessions();
   }
+
 
 });
 
