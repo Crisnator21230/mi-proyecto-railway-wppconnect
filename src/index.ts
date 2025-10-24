@@ -116,7 +116,7 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
   });
 
   app.get('/', (req, res) => {
-  res.status(200).send('✅ Servidor corriendo correctamente - WPPConnect en Railway');
+  res.status(200).send(' Servidor corriendo correctamente - WPPConnect en Railway');
   });
 
   createFolders();
@@ -162,8 +162,16 @@ http.listen(PORT, () => {
 
   if (serverOptions.startAllSession) {
     logger.info(' Starting all sessions...');
-    startAllSessions(serverOptions, logger);
+
+    // Crear copia con valores seguros
+    const safeOptions = {
+      secretKey: serverOptions.secretKey || process.env.SECRET_KEY || 'defaultKey',
+      ...serverOptions,
+    };
+
+    startAllSessions(safeOptions, logger);
   }
+
 });
 
 

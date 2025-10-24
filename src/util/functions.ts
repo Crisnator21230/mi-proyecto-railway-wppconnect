@@ -263,7 +263,7 @@ export async function startAllSessions(config: any, logger: any) {
 
 export async function startAllSessions(config: any, logger: any) {
   try {
-    const port = config.port || process.env.PORT || 3000;
+    const port = process.env.PORT|| config.port || 3000;
 
     // Detectar entorno Railway / producción:
     const publicDomain =

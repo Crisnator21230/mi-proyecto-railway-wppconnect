@@ -9,7 +9,7 @@
   "scripts": {
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "tsc",
-    "build": "npx tsc && npx tsc-alias && npx cpx src/swagger.json dist",
+    "build": "npx tsc && npx tsc-alias && node -e \"require('fs').copyFileSync('src/swagger.json', 'dist/swagger.json')\"",
     "changelog:last": "conventional-changelog -p angular -r 2",
     "changelog:preview": "conventional-changelog -p angular -u",
     "changelog:update": "conventional-changelog -p angular -i CHANGELOG.md -s",

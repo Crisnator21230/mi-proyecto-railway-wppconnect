@@ -2,6 +2,7 @@ import { ServerOptions } from '../types/ServerOptions.js';
 
 export default {
   secretKey: process.env.SECRET_KEY,
+  
   host: process.env.HOST,
   port: process.env.PORT,
   deviceName: 'WppConnect',
