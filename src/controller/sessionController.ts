@@ -183,19 +183,17 @@ export async function showAllSessions(
   const  secretkey =  process.env.SECRET_KEY || req.serverOptions.secretKey;
   const { authorization: token } = req.headers;
   console.log(req.headers)
-  let tokenDecrypt: any = '' ;
+  let tokenDecrypt: any = '';
 
   if (secretkey === undefined) {
     tokenDecrypt = (token?.split(' ')[1] ?? '');
-    console.log(tokenDecrypt)
   } else {
     tokenDecrypt = secretkey;
-    console.log(tokenDecrypt)
   }
 
   const arr: any = [];
 
-  if (tokenDecrypt !== process.env.SECRET_KEY || req.serverOptions.secretKey) {
+  if (tokenDecrypt !== process.env.SECRET_KEY) {
     res.status(400).json({
       response: false,
       message: 'The token is incorrect',
