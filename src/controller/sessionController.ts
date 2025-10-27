@@ -180,15 +180,17 @@ export async function showAllSessions(
       schema: 'THISISMYSECURETOKEN'
      }
    */
-  const  secretkey =  process.env.SECRET_KEY;
+  const  secretkey =  process.env.SECRET_KEY || req.serverOptions.secretKey;
   const { authorization: token } = req.headers;
-
-  let tokenDecrypt: any = '';
+  console.log(req.headers)
+  let tokenDecrypt: any = '' ;
 
   if (secretkey === undefined) {
     tokenDecrypt = (token?.split(' ')[1] ?? '');
+    console.log(tokenDecrypt)
   } else {
     tokenDecrypt = secretkey;
+    console.log(tokenDecrypt)
   }
 
   const arr: any = [];
