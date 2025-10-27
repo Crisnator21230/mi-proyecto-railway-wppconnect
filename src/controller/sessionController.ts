@@ -186,7 +186,7 @@ export async function showAllSessions(
   let tokenDecrypt: any = '';
 
   if (secretkey === undefined) {
-    tokenDecrypt = token?.split(' ')[0];
+    tokenDecrypt = (token?.split(' ')[1] ?? '');
   } else {
     tokenDecrypt = secretkey;
   }
