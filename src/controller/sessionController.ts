@@ -537,6 +537,7 @@ export async function getSessionState(req: Request, res: Response) {
 }
 
 export async function getQrCode(req: Request, res: Response) {
+  console.log('getQrCode called');
   /**
    * #swagger.tags = ["Auth"]
      #swagger.autoBody=false
