@@ -538,6 +538,11 @@ export async function getSessionState(req: Request, res: Response) {
 
 export async function getQrCode(req: Request, res: Response) {
   console.log('getQrCode called');
+   const session = req.params.session;
+   const client = await clientsArray
+   console.log('Session:', session);
+   console.log('Client:', client);
+
   /**
    * #swagger.tags = ["Auth"]
      #swagger.autoBody=false
