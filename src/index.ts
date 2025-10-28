@@ -65,6 +65,22 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
   }
 
   serverOptions = mergeDeep({}, config, serverOptions);
+  
+  // Ensure createOptions exists and disable autoClose by default
+  // Ensure createOptions exists and disable autoClose by default
+serverOptions.createOptions = {
+  browserArgs: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+    '--no-zygote',
+    '--single-process',
+  ],
+  ...(serverOptions.createOptions || {}),
+  autoClose: (serverOptions.createOptions as any)?.autoClose ?? 0,
+};
+
   defaultLogger.level = serverOptions?.log?.level
     ? serverOptions.log.level
     : 'silly';

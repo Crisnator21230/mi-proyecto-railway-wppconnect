@@ -538,6 +538,30 @@ export async function getSessionState(req: Request, res: Response) {
 
 export async function getQrCode(req: Request, res: Response) {
   console.log('getQrCode called');
+  const sessionParam = (req.params.session || '').toString();
+try {
+    // Normalizamos búsqueda para evitar problemas de mayúsculas/minúsculas
+    const keys = Object.keys(clientsArray || {});
+    const sessionKey = keys.find((k) => k.toLowerCase() === sessionParam.toLowerCase());
+
+    if (!sessionKey) {
+      return res.status(404).json({
+        status: null,
+        message: `Session '${sessionParam}' not found.`,
+      });
+    }
+
+    const client = (clientsArray as Record<string, any>)[sessionKey];
+
+    if (!client) {
+      return res.status(404).json({
+        status: null,
+        message: `Client for session '${sessionKey}' is not initialized.`,
+      });
+    }
+   console.log('Session:', sessionParam);
+   console.log('Client:', client);
+
   /**
    * #swagger.tags = ["Auth"]
      #swagger.autoBody=false
@@ -549,20 +573,18 @@ export async function getQrCode(req: Request, res: Response) {
       schema: 'NERDWHATS_AMERICA'
      }
    */
-  try {
-    if (req?.client?.urlcode) {
+  
+    if (client?.urlcode) {
       // We add options to generate the QR code in higher resolution
       // The /qrcode-session request will now return a readable qrcode.
-      console.log(req.client);
-      console.log(req.client.urlcode);
       const qrOptions = {
         errorCorrectionLevel: 'M' as const,
         type: 'image/png' as const,
         scale: 5,
         width: 500,
       };
-      const qr = req.client.urlcode
-        ? await QRCode.toDataURL(req.client.urlcode, qrOptions)
+      const qr = client.urlcode
+        ? await QRCode.toDataURL(client.urlcode, qrOptions)
         : null;
       const img = Buffer.from(
         (qr as any).replace(/^data:image\/(png|jpeg|jpg);base64,/, ''),
@@ -592,6 +614,7 @@ export async function getQrCode(req: Request, res: Response) {
       .json({ status: 'error', message: 'Error retrieving QRCode', error: ex });
   }
 }
+
 
 export async function killServiceWorker(req: Request, res: Response) {
   /**
