@@ -39,7 +39,8 @@ export interface ServerOptions {
     logger: string[];
   };
   createOptions: {
-    browserArgs: string[];
+    browserArgs?: string[];
+    autoClose?: number | boolean;
   };
   mapper: {
     enable: boolean;
