@@ -538,10 +538,28 @@ export async function getSessionState(req: Request, res: Response) {
 
 export async function getQrCode(req: Request, res: Response) {
   console.log('getQrCode called');
-   const clientsArray: Record<string, any> = {};
-   const session = req.params.session;
-   const client = await clientsArray[session];
-   console.log('Session:', session);
+  const sessionParam = (req.params.session || '').toString();
+try {
+    // Normalizamos búsqueda para evitar problemas de mayúsculas/minúsculas
+    const keys = Object.keys(clientsArray || {});
+    const sessionKey = keys.find((k) => k.toLowerCase() === sessionParam.toLowerCase());
+
+    if (!sessionKey) {
+      return res.status(404).json({
+        status: null,
+        message: `Session '${sessionParam}' not found.`,
+      });
+    }
+
+    const client = (clientsArray as Record<string, any>)[sessionKey];
+
+    if (!client) {
+      return res.status(404).json({
+        status: null,
+        message: `Client for session '${sessionKey}' is not initialized.`,
+      });
+    }
+   console.log('Session:', sessionParam);
    console.log('Client:', client);
 
   /**
@@ -555,8 +573,8 @@ export async function getQrCode(req: Request, res: Response) {
       schema: 'NERDWHATS_AMERICA'
      }
    */
-  try {
-    if (req?.client?.urlcode) {
+  
+    if (client?.urlcode) {
       // We add options to generate the QR code in higher resolution
       // The /qrcode-session request will now return a readable qrcode.
       const qrOptions = {
@@ -596,6 +614,7 @@ export async function getQrCode(req: Request, res: Response) {
       .json({ status: 'error', message: 'Error retrieving QRCode', error: ex });
   }
 }
+
 
 export async function killServiceWorker(req: Request, res: Response) {
   /**
