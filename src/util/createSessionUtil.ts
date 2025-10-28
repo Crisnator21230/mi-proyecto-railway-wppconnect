@@ -77,6 +77,7 @@ export default class CreateSessionUtil {
           {
             session: session,
             phoneNumber: client.config.phone ?? null,
+            autoClose: 0,
             deviceName:
               client.config.phone == undefined // bug when using phone code this shouldn't be passed (https://github.com/wppconnect-team/wppconnect-server/issues/1687#issuecomment-2099357874)
                 ? client.config?.deviceName ||
