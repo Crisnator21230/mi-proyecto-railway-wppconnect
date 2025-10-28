@@ -583,8 +583,8 @@ try {
         scale: 5,
         width: 500,
       };
-      const qr = req.client.urlcode
-        ? await QRCode.toDataURL(req.client.urlcode, qrOptions)
+      const qr = client.urlcode
+        ? await QRCode.toDataURL(client.urlcode, qrOptions)
         : null;
       const img = Buffer.from(
         (qr as any).replace(/^data:image\/(png|jpeg|jpg);base64,/, ''),
