@@ -559,9 +559,6 @@ try {
         message: `Client for session '${sessionKey}' is not initialized.`,
       });
     }
-   console.log('Session:', sessionParam);
-   console.log('Client:', client);
-
   /**
    * #swagger.tags = ["Auth"]
      #swagger.autoBody=false
