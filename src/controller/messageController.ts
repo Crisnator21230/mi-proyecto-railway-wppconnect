@@ -93,7 +93,7 @@ export async function sendMessage(req: Request, res: Response) {
   const { phone, message } = req.body;
 
   const options = req.body.options || {};
-
+  console.log('options', options);
   try {
     const results: any = [];
     for (const contato of phone) {
