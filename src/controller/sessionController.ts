@@ -250,7 +250,7 @@ export async function startSession(req: Request, res: Response): Promise<any> {
       }
      }
    */
-  const session = req.session;
+  const session = (req.params.session || '').toString();;
   const { waitQrCode = false } = req.body;
 
   await getSessionState(req, res);
@@ -269,7 +269,7 @@ export async function closeSession(req: Request, res: Response): Promise<any> {
       schema: 'NERDWHATS_AMERICA'
      }
    */
-  const session = req.session;
+  const session = (req.params.session || '').toString();;
   try {
     if ((clientsArray as any)[session].status === null) {
       return await res
@@ -311,13 +311,13 @@ export async function logOutSession(req: Request, res: Response): Promise<any> {
      }
    */
   try {
-    const session = req.session;
+    const session = (req.params.session || '').toString();
     await req.client.logout();
-    deleteSessionOnArray(req.session);
+    deleteSessionOnArray((req.params.session || '').toString());
 
     setTimeout(async () => {
-      const pathUserData = config.customUserDataDir + req.session;
-      const pathTokens = __dirname + `../../../tokens/${req.session}.data.json`;
+      const pathUserData = config.customUserDataDir + (req.params.session || '').toString();
+      const pathTokens = __dirname + `../../../tokens/${(req.params.session || '').toString()}.data.json`;
 
       if (fs.existsSync(pathUserData)) {
         await fs.promises.rm(pathUserData, {
