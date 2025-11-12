@@ -293,7 +293,7 @@ export async function startAllSessions(config: any, logger: any) {
     const localUrl = `http://${localBase}/api/${encodedSecret}/start-all`;
 
     // Configuración de timeout razonable
-    const axiosOpts = { timeout: 5000 };
+    const axiosOpts = { timeout: 0 };
 
     // === Intentar primero con la URL pública ===
     logger.info(
