@@ -67,7 +67,6 @@ export function initServer(serverOptions: Partial<ServerOptions>): {
   serverOptions = mergeDeep({}, config, serverOptions);
   
   // Ensure createOptions exists and disable autoClose by default
-  // Ensure createOptions exists and disable autoClose by default
 serverOptions.createOptions = {
   browserArgs: [
     '--no-sandbox',
